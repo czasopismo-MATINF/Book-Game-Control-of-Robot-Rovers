@@ -15,6 +15,12 @@ public class Main {
 				this.promptPrinter.print(PromptPrinterConfigInterface.COMMAND_LINE_PROMPT);
 				String commandLine = scanner.nextLine();
 				PromptCommand promptCommand = new PromptCommand(commandLine, this.promptCommandHelper);
+
+				if ("exit".equals(promptCommand.camelCasedKeyWords)) {
+					this.promptPrinter.println("EXIT");
+					System.exit(0);
+				}
+
 				this.game.runCommand(promptCommand, this.promptPrinter);
 			}
 		}
