@@ -4,44 +4,22 @@ import java.util.Scanner;
 
 public class Main {
 
-	static final String COMMAND_LINE_PROMPT = ">";
+	PromptPrinterConfig promptConfig = new PromptPrinterConfig();
+	PromptPrinter promptPrinter = new PromptPrinter();
 
-	static void print(String text) {
-		System.out.print(text);
-	}
-
-	static void println(String text) {
-		System.out.println(text);
-	}
-
-	static void println() {
-		System.out.println();
-	}
-
-	static void print(String[] stringArray) {
-		for (String s : stringArray) {
-			Main.print(s);
-			Main.print("|");
-		}
-	}
-
-	static void println(String[] stringArray) {
-		for (String s : stringArray) {
-			Main.print(s);
-			Main.print("|");
-		}
-		Main.println();
-	}
+	PromptCommandConfig promptCommandConfig = new PromptCommandConfig();
+	PromptCommandHelper promptCommandHelpter = new PromptCommandHelper();
 
 	ControlRobotTurnGame game = new ControlRobotTurnGame();
 
 	public void run() {
 		try (Scanner scanner = new Scanner(System.in)) {
 			for (;;) {
-				Main.print(Main.COMMAND_LINE_PROMPT);
+				this.promptPrinter.print(this.promptConfig.COMMAND_LINE_PROMPT);
 				String commandLine = scanner.nextLine();
-				PromptCommand promptCommand = new PromptCommand(commandLine);
-				this.game.runCommand(promptCommand);
+				PromptCommand promptCommand = new PromptCommand(commandLine, this.promptCommandHelpter,
+						this.promptCommandConfig);
+				this.game.runCommand(promptCommand, this.promptPrinter);
 			}
 		}
 	}

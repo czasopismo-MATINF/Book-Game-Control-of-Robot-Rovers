@@ -2,7 +2,6 @@ package game.control.robotic.rovers;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.Annotation;
 
 public class ControlRobotTurnGame {
 
@@ -10,12 +9,12 @@ public class ControlRobotTurnGame {
 	}
 
 	@PromptCommandAnnotation
-	public void testCommand(PromptCommand command) {
-		Main.println("Test Command run.");
-		Main.println(command.arguments);
+	public void testCommand(PromptCommand command, PromptPrinter printer) {
+		printer.println("Test Command run.");
+		printer.println(command.arguments);
 	}
 
-	public void runCommand(PromptCommand command) {
+	public void runCommand(PromptCommand command, PromptPrinter printer) {
 		try {
 
 			Method m = this.getClass().getMethod(command.camelCasedKeyWords, PromptCommand.class);
