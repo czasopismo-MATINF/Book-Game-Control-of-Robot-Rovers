@@ -1,7 +1,11 @@
 package game.control.robotic.rovers;
 
+import game.control.robotic.rovers.prompt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import game.control.robotic.rovers.prompt.PromptCommand;
+import game.control.robotic.rovers.prompt.PromptCommandAnnotation;
 
 public class ControlRobotTurnGame {
 

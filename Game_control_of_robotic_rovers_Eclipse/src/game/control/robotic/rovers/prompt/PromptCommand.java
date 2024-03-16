@@ -1,16 +1,16 @@
-package game.control.robotic.rovers;
+package game.control.robotic.rovers.prompt;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class PromptCommand {
 
-	String command;
-	String keyWords;
-	String arguments;
-	String[] keyWordsArray;
-	String[] argumentsArray;
-	String camelCasedKeyWords;
+	public String command;
+	public String keyWords;
+	public String arguments;
+	public String[] keyWordsArray;
+	public String[] argumentsArray;
+	public String camelCasedKeyWords;
 
 	public PromptCommand(String command, PromptCommandHelperInterface helper) {
 

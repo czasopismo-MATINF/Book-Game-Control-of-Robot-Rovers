@@ -1,4 +1,4 @@
-package game.control.robotic.rovers;
+package game.control.robotic.rovers.prompt;
 
 public interface PromptPrinterInterface {
 

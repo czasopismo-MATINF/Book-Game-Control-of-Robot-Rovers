@@ -1,6 +1,13 @@
 package game.control.robotic.rovers;
 
+import game.control.robotic.rovers.prompt.*;
 import java.util.Scanner;
+
+import game.control.robotic.rovers.prompt.PromptCommand;
+import game.control.robotic.rovers.prompt.PromptCommandHelper;
+import game.control.robotic.rovers.prompt.PromptCommandHelperInterface;
+import game.control.robotic.rovers.prompt.PromptPrinter;
+import game.control.robotic.rovers.prompt.PromptPrinterConfigInterface;
 
 public class Main {
 

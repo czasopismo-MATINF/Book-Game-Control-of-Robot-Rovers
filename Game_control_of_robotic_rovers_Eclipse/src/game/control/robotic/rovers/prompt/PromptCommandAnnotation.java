@@ -1,4 +1,4 @@
-package game.control.robotic.rovers;
+package game.control.robotic.rovers.prompt;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
