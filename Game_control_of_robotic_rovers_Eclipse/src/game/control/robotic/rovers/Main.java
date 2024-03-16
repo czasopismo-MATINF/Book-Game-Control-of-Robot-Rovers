@@ -4,21 +4,17 @@ import java.util.Scanner;
 
 public class Main {
 
-	PromptPrinterConfig promptConfig = new PromptPrinterConfig();
-	PromptPrinter promptPrinter = new PromptPrinter();
-
-	PromptCommandConfig promptCommandConfig = new PromptCommandConfig();
-	PromptCommandHelper promptCommandHelpter = new PromptCommandHelper();
+	PromptPrinterInterface promptPrinter = new PromptPrinter();
+	PromptCommandHelperInterface promptCommandHelper = new PromptCommandHelper();
 
 	ControlRobotTurnGame game = new ControlRobotTurnGame();
 
 	public void run() {
 		try (Scanner scanner = new Scanner(System.in)) {
 			for (;;) {
-				this.promptPrinter.print(this.promptConfig.COMMAND_LINE_PROMPT);
+				this.promptPrinter.print(PromptPrinterConfigInterface.COMMAND_LINE_PROMPT);
 				String commandLine = scanner.nextLine();
-				PromptCommand promptCommand = new PromptCommand(commandLine, this.promptCommandHelpter,
-						this.promptCommandConfig);
+				PromptCommand promptCommand = new PromptCommand(commandLine, this.promptCommandHelper);
 				this.game.runCommand(promptCommand, this.promptPrinter);
 			}
 		}

@@ -1,6 +1,6 @@
 package game.control.robotic.rovers;
 
-public class PromptPrinterConfig {
+public interface PromptPrinterConfigInterface {
 
 	final String COMMAND_LINE_PROMPT = ">";
 

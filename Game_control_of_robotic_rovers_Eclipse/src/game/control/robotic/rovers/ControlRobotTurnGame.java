@@ -9,17 +9,17 @@ public class ControlRobotTurnGame {
 	}
 
 	@PromptCommandAnnotation
-	public void testCommand(PromptCommand command, PromptPrinter printer) {
+	public void testCommand(PromptCommand command, PromptPrinterInterface printer) {
 		printer.println("Test Command run.");
 		printer.println(command.arguments);
 	}
 
-	public void runCommand(PromptCommand command, PromptPrinter printer) {
+	public void runCommand(PromptCommand command, PromptPrinterInterface printer) {
 		try {
-
-			Method m = this.getClass().getMethod(command.camelCasedKeyWords, PromptCommand.class);
+			Method m = this.getClass().getMethod(command.camelCasedKeyWords, PromptCommand.class,
+					PromptPrinterInterface.class);
 			if (m != null && m.isAnnotationPresent(PromptCommandAnnotation.class)) {
-				m.invoke(this, command);
+				m.invoke(this, command, printer);
 			} else {
 				throw new CommandMethodNotFoundException();
 			}

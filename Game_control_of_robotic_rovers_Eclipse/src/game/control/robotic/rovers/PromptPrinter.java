@@ -1,27 +1,27 @@
 package game.control.robotic.rovers;
 
-public class PromptPrinter {
+public class PromptPrinter implements PromptPrinterInterface {
 
-	void print(String text) {
+	public void print(String text) {
 		System.out.print(text);
 	}
 
-	void println(String text) {
+	public void println(String text) {
 		System.out.println(text);
 	}
 
-	void println() {
+	public void println() {
 		System.out.println();
 	}
 
-	void print(String[] stringArray) {
+	public void print(String[] stringArray) {
 		for (String s : stringArray) {
 			this.print(s);
 			this.print("|");
 		}
 	}
 
-	void println(String[] stringArray) {
+	public void println(String[] stringArray) {
 		for (String s : stringArray) {
 			this.print(s);
 			this.print("|");

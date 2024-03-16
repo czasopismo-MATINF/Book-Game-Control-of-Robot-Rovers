@@ -3,9 +3,9 @@ package game.control.robotic.rovers;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class PromptCommandHelper {
+public class PromptCommandHelper implements PromptCommandHelperInterface {
 
-	String makeCamelCased(String[] words) {
+	public String makeCamelCased(String[] words) {
 
 		String out = Arrays.asList(words).stream()
 				.map(w -> (w.length() > 0) ? (w.substring(0, 1).toUpperCase() + w.substring(1).toLowerCase()) : w)

@@ -12,18 +12,18 @@ public class PromptCommand {
 	String[] argumentsArray;
 	String camelCasedKeyWords;
 
-	public PromptCommand(String command, PromptCommandHelper helper, PromptCommandConfig config) {
+	public PromptCommand(String command, PromptCommandHelperInterface helper) {
 
 		this.command = command;
 
-		String[] commandSplit = this.command.split(config.SPLIT_KEYWORDS_ARGUMENTS, 2);
+		String[] commandSplit = this.command.split(PromptCommandConfigInterface.SPLIT_KEYWORDS_ARGUMENTS, 2);
 		this.keyWords = commandSplit[0];
-		this.keyWordsArray = commandSplit[0].trim().split(config.SPLIT_REGEX);
+		this.keyWordsArray = commandSplit[0].trim().split(PromptCommandConfigInterface.SPLIT_REGEX);
 		this.arguments = null;
 		this.argumentsArray = new String[0];
 		if (commandSplit.length >= 2) {
 			this.arguments = commandSplit[1];
-			this.argumentsArray = commandSplit[1].trim().split(config.SPLIT_REGEX);
+			this.argumentsArray = commandSplit[1].trim().split(PromptCommandConfigInterface.SPLIT_REGEX);
 		}
 
 		this.camelCasedKeyWords = helper.makeCamelCased(this.keyWordsArray);

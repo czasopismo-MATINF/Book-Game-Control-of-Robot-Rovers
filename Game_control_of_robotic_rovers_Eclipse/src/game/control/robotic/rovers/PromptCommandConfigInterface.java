@@ -1,6 +1,6 @@
 package game.control.robotic.rovers;
 
-public class PromptCommandConfig {
+public interface PromptCommandConfigInterface {
 
 	final String SPLIT_KEYWORDS_ARGUMENTS = ">";
 	final String SPLIT_REGEX = "\\s+";
