@@ -1,7 +1,14 @@
 package game.control.robotic.rovers.board;
 
-public class Battery {
+import java.io.Serializable;
 
+public class Battery implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private Integer id;
 	private Integer capacity;
 	private Integer energy;

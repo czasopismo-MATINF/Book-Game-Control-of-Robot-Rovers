@@ -1,7 +1,14 @@
 package game.control.robotic.rovers.board;
 
-public class Blizzard {
+import java.io.Serializable;
 
+public class Blizzard implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private Integer volume;
 
 	public Blizzard(Integer volume) {

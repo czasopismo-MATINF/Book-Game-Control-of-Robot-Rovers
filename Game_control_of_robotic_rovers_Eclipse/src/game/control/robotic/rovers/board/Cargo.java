@@ -2,10 +2,16 @@ package game.control.robotic.rovers.board;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Cargo {
+public class Cargo implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private List<Battery> batteriesInCargo = new ArrayList<>();
 	private Integer rocks;
 	private Integer maxLoad;

@@ -1,11 +1,19 @@
 package game.control.robotic.rovers.board;
 
-public class Robot {
+import java.io.Serializable;
 
+public class Robot implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private Integer id;
 	private Cargo cargo;
 	private Battery[] batteries;
 
-	public Robot(Integer maxLoad, Integer maxBatteries) {
+	public Robot(Integer id, Integer maxLoad, Integer maxBatteries) {
 		this.cargo = new Cargo(maxLoad);
 		this.batteries = new Battery[maxBatteries];
 	}
@@ -25,6 +33,10 @@ public class Robot {
 			return b;
 		}
 		return null;
+	}
+
+	public Integer getId() {
+		return id;
 	}
 
 }

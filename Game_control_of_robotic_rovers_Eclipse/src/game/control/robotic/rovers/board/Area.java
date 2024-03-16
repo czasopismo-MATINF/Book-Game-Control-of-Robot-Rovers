@@ -1,10 +1,16 @@
 package game.control.robotic.rovers.board;
 
 import java.util.List;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Area {
+public class Area implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private List<Robot> robots;
 	private List<Battery> batteries;
 	private List<Blizzard> blizzards;
