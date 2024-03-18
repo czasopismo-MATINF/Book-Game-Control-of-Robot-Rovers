@@ -1,5 +1,6 @@
 package game.control.robotic.rovers;
 
+import game.control.robotic.rovers.ControlRobotTurnGame.CommandMethodArgumentException;
 import game.control.robotic.rovers.board.Planet;
 import game.control.robotic.rovers.prompt.*;
 import java.lang.reflect.InvocationTargetException;
@@ -41,7 +42,7 @@ public class ControlRobotTurnGame {
 		String fileName = command.argumentsArray[0];
 
 		try (FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-				ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
+			ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
 			objectOutputStream.writeObject(this.planet);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -64,7 +65,7 @@ public class ControlRobotTurnGame {
 		String fileName = command.argumentsArray[0];
 
 		try (FileInputStream fileInputStream = new FileInputStream(fileName);
-				ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
+			ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
 			this.planet = (Planet) objectInputStream.readObject();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -73,6 +74,22 @@ public class ControlRobotTurnGame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@PromptCommandAnnotation
+	public void planet(PromptCommand command, PromptPrinterInterface printer) throws CommandMethodArgumentException {
+		
+		if (command.argumentsArray.length < 2) {
+			throw new CommandMethodArgumentException();
+		}
+		Integer width = Integer.valueOf(command.argumentsArray[0]);
+		Integer height = Integer.valueOf(command.argumentsArray[1]);
+
+		if (width <= 0 || height <= 0) {
+			throw new CommandMethodArgumentException();
+		}
+		this.planet = new Planet(width, height);
+
 	}
 
 	public void runCommand(PromptCommand command, PromptPrinterInterface printer) {
