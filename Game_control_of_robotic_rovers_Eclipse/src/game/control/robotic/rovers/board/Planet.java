@@ -18,7 +18,12 @@ public class Planet implements Serializable {
 		super();
 		this.width = width;
 		this.height = height;
-		this.surface = new Area[width][height];
+		this.surface = new Area[this.width][this.height];
+		for(int i = 0; i < this.width; ++i) {
+			for(int j = 0; j < this.height; ++j) {
+				this.surface[i][j] = new Area();
+			}
+		}
 	}
 
 	public Integer getWidth() {
@@ -33,4 +38,17 @@ public class Planet implements Serializable {
 		return surface;
 	}
 
+	public MotherShip extractMotherShip() {
+		for(int i = 0; i < this.width; ++i) {
+			for(int j = 0; j < this.height; ++j) {
+				MotherShip motherShip = this.surface[i][j].getMotherShip();
+				if(motherShip != null) {
+					this.surface[i][j].setMotherShip(null);
+					return motherShip;
+				}
+			}
+		}
+		return null;
+	}
+	
 }

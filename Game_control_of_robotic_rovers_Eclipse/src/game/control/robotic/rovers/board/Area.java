@@ -1,6 +1,7 @@
 package game.control.robotic.rovers.board;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -10,13 +11,15 @@ public class Area implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	private List<Robot> robots;
 	private List<Battery> batteries;
 	private List<Blizzard> blizzards;
 
-	private Integer rocks;
+	private Integer rocks = 0;
 	private boolean hasChasm;
+
+	private MotherShip motherShip;
 
 	{
 		this.robots = new ArrayList<>();
@@ -58,6 +61,14 @@ public class Area implements Serializable {
 		this.hasChasm = chasm;
 	}
 
+	public MotherShip getMotherShip() {
+		return this.motherShip;
+	}
+
+	public void setMotherShip(MotherShip motherShip) {
+		this.motherShip = motherShip;
+	}
+
 	public void addBattery(Battery battery) {
 		this.batteries.add(battery);
 	}
@@ -84,6 +95,10 @@ public class Area implements Serializable {
 			this.rocks = 0;
 			return r;
 		}
+	}
+
+	public Integer getBlizzardVolume() {
+		return this.getBlizzards().stream().collect(Collectors.summingInt(b -> b.getVolume()));
 	}
 
 }

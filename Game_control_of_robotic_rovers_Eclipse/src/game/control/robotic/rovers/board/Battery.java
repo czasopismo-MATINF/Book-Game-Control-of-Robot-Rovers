@@ -8,17 +8,19 @@ public class Battery implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
+	private static Integer MAX_BATTERY_ID = 0;
+
 	private Integer id;
 	private Integer capacity;
 	private Integer energy;
 	private Integer weight;
 
-	public Battery(Integer id, Integer maxEnergy, Integer weight) {
+	public Battery(Integer capacity, Integer weight) {
 		super();
-		this.id = id;
-		this.capacity = maxEnergy;
-		this.energy = maxEnergy;
+		this.id = ++Battery.MAX_BATTERY_ID;
+		this.capacity = capacity;
+		this.energy = capacity;
 		this.weight = weight;
 	}
 
