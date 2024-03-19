@@ -11,12 +11,12 @@ public class Battery implements Serializable {
 
 	private static Integer MAX_BATTERY_ID = 0;
 
-	private Integer id;
-	private Integer capacity;
-	private Integer energy;
-	private Integer weight;
+	private int id;
+	private int capacity;
+	private int energy;
+	private int weight;
 
-	public Battery(Integer capacity, Integer weight) {
+	public Battery(int capacity, int weight) {
 		super();
 		this.id = ++Battery.MAX_BATTERY_ID;
 		this.capacity = capacity;
@@ -24,23 +24,23 @@ public class Battery implements Serializable {
 		this.weight = weight;
 	}
 
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 
-	public Integer getEnergy() {
+	public int getEnergy() {
 		return energy;
 	}
 
-	public Integer getCapacity() {
+	public int getCapacity() {
 		return capacity;
 	}
 
-	public Integer getWeight() {
+	public int getWeight() {
 		return weight;
 	}
 
-	private Integer charge(Integer energy) {
+	private int charge(int energy) {
 		if (this.energy + energy <= this.capacity) {
 			this.energy += energy;
 			return energy;
@@ -51,7 +51,7 @@ public class Battery implements Serializable {
 		}
 	}
 
-	private Integer drain(Integer energy) {
+	private int drain(int energy) {
 		if (this.energy <= energy) {
 			this.energy -= energy;
 			return energy;

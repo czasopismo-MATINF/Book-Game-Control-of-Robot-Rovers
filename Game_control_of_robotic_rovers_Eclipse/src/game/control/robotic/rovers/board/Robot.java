@@ -1,7 +1,6 @@
 package game.control.robotic.rovers.board;
 
 import java.io.Serializable;
-import game.control.robotic.rovers.CRTGConfig;
 
 public class Robot implements Serializable {
 
@@ -10,22 +9,23 @@ public class Robot implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private static Integer MAX_ROBOT_ID = 0;
+	private static int MAX_ROBOT_ID = 0;
 
-	private Integer id;
+	private int id;
 	private MaxLoadCargo cargo;
 	private Battery[] batteries;
 
-	public Robot(Integer maxLoad, Integer maxBatteries) {
+	public Robot(int maxLoad, int maxBatteries, BoardConfig boardConfig) {
 		this.id = ++Robot.MAX_ROBOT_ID;
 		this.cargo = new MaxLoadCargo(maxLoad);
 		this.batteries = new Battery[maxBatteries];
 		for (int i = 0; i < this.batteries.length; ++i) {
-			this.batteries[i] = new Battery(CRTGConfig.BATTERY_CAPACITY, CRTGConfig.BATTERY_WEIGHT);
+			this.batteries[i] = new Battery(boardConfig.getValue(BoardConfig.CONFIG_ENTRIES.BATTERY_CAPACITY),
+					boardConfig.getValue(BoardConfig.CONFIG_ENTRIES.BATTERY_WEIGHT));
 		}
 	}
 
-	public boolean insertBattery(Battery battery, Integer slot) {
+	public boolean insertBattery(Battery battery, int slot) {
 		if (slot < this.batteries.length && this.batteries[slot] == null) {
 			this.batteries[slot] = battery;
 			return true;
@@ -33,7 +33,7 @@ public class Robot implements Serializable {
 		return false;
 	}
 
-	public Battery removeBattery(Integer slot) {
+	public Battery removeBattery(int slot) {
 		if (slot < this.batteries.length && this.batteries[slot] != null) {
 			Battery b = this.batteries[slot];
 			this.batteries[slot] = null;
@@ -42,7 +42,7 @@ public class Robot implements Serializable {
 		return null;
 	}
 
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 

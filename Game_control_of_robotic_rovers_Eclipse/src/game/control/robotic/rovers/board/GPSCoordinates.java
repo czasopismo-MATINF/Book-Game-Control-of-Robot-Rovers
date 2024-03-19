@@ -1,32 +1,34 @@
 package game.control.robotic.rovers.board;
 
-public class GPSCoordinates {
+import java.io.Serializable;
 
-	Integer x;
-	Integer y;
-	
-	public GPSCoordinates(Integer longitude, Integer latitude, Integer width, Integer height) {
+public class GPSCoordinates implements Serializable {
+
+	int x;
+	int y;
+
+	public GPSCoordinates(int longitude, int latitude, int width, int height) {
 		super();
-		
+
 		this.x = longitude % width;
-		
-		if( ( height % 2 ) == 0 ) {
-			if( latitude >= 0 ) {
-				this.y = ( height / 2 ) - ( latitude % ( ( height / 2 ) + 1 ) );
+
+		if ((height % 2) == 0) {
+			if (latitude >= 0) {
+				this.y = (height / 2) - (latitude % ((height / 2) + 1));
 			} else {
-				this.y = ( height / 2 ) - ( latitude % ( height / 2 ) );
+				this.y = (height / 2) - (latitude % (height / 2));
 			}
 		} else {
-			this.y = ( height / 2 ) - ( latitude % ( ( height / 2 ) + 1 ) );
+			this.y = (height / 2) - (latitude % ((height / 2) + 1));
 		}
-		
+
 	}
 
-	public Integer getX() {
+	public int getX() {
 		return x;
 	}
 
-	public Integer getY() {
+	public int getY() {
 		return y;
 	}
 

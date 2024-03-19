@@ -35,6 +35,11 @@ import game.control.robotic.rovers.board.*;
        fill(255,255,255);
        text(String.valueOf(area.getBatteries().size()), 80, 95);
     }
+    if (area.getChargingStations().size() > 0 ) {
+       textSize(15);
+       fill(255,255,255);
+       text(String.valueOf(area.getChargingStations().size()), 80, 20);
+    }
     if( area.hasChasm() ) {
       color(0,0,0);
       strokeWeight(2);

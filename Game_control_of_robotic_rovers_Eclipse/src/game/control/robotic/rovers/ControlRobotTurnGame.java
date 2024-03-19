@@ -20,6 +20,8 @@ public class ControlRobotTurnGame {
 
 	private Planet planet;
 
+	private BoardConfig config = new ControlRobotTurnGameConfig();
+
 	public class CommandMethodNotFoundException extends Exception {
 	}
 
@@ -122,7 +124,7 @@ public class ControlRobotTurnGame {
 
 		MotherShip motherShip = planet.extractMotherShip();
 		if (motherShip == null)
-			motherShip = new MotherShip();
+			motherShip = new MotherShip(ControlRobotTurnGameConfig.MOTHER_SHIP_MAX_LOAD);
 
 		planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].setMotherShip(motherShip);
 
@@ -136,7 +138,8 @@ public class ControlRobotTurnGame {
 		GPSCoordinates gpsCoords = this.getCoords(command, planet);
 
 		planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getRobots()
-				.add(new Robot(CRTGConfig.ROBOT_MAX_LOAD, CRTGConfig.ROBOT_MAX_BATTERIES));
+				.add(new Robot(ControlRobotTurnGameConfig.ROBOT_MAX_LOAD,
+						ControlRobotTurnGameConfig.ROBOT_MAX_BATTERIES, this.config));
 
 	}
 
@@ -148,13 +151,26 @@ public class ControlRobotTurnGame {
 
 		GPSCoordinates gpsCoords = this.getCoords(command, planet);
 
-		planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getBatteries()
-				.add(new Battery(CRTGConfig.BATTERY_CAPACITY, CRTGConfig.BATTERY_WEIGHT));
+		planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getBatteries().add(
+				new Battery(ControlRobotTurnGameConfig.BATTERY_CAPACITY, ControlRobotTurnGameConfig.BATTERY_WEIGHT));
 
 	}
 
 	@PromptCommandAnnotation
-	public void addRocks(PromptCommand command, PromptPrinterInterface printer) throws CommandMethodArgumentException {
+	public void addChargingStation(PromptCommand command, PromptPrinterInterface printer) throws CommandMethodArgumentException {
+		
+		validateNumberOfArguments(command, 2);
+		
+		GPSCoordinates gpsCoords = this.getCoords(command, planet);
+		
+		planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getChargingStations().add(
+				new ChargingStation(ControlRobotTurnGameConfig.CHARGING_STATION_ACCESS_POINTS)
+		);
+		
+	}
+	
+	@PromptCommandAnnotation
+ 	public void addRocks(PromptCommand command, PromptPrinterInterface printer) throws CommandMethodArgumentException {
 
 		validateNumberOfArguments(command, 3);
 

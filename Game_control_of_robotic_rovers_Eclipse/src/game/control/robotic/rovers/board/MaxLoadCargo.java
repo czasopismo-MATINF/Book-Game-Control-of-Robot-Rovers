@@ -11,18 +11,18 @@ public class MaxLoadCargo implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	private List<Battery> batteriesInCargo = new ArrayList<>();
-	private Integer rocks;
-	private Integer maxLoad;
 
-	public MaxLoadCargo(Integer maxLoad) {
+	private List<Battery> batteriesInCargo = new ArrayList<>();
+	private int rocks;
+	private int maxLoad;
+
+	public MaxLoadCargo(int maxLoad) {
 		super();
 		this.maxLoad = maxLoad;
 	}
 
-	public Integer load() {
-		Integer batteryWeight = this.batteriesInCargo.stream().collect(Collectors.summingInt(b -> b.getWeight()));
+	public int load() {
+		int batteryWeight = this.batteriesInCargo.stream().collect(Collectors.summingInt(b -> b.getWeight()));
 		return batteryWeight + this.rocks;
 	}
 
@@ -35,7 +35,7 @@ public class MaxLoadCargo implements Serializable {
 		}
 	}
 
-	public Integer addRock(Integer rocks) {
+	public int addRock(int rocks) {
 		if (this.load() + rocks < this.maxLoad) {
 			this.rocks += rocks;
 			return rocks;
@@ -50,7 +50,7 @@ public class MaxLoadCargo implements Serializable {
 		return batteriesInCargo;
 	}
 
-	public Integer getRocks() {
+	public int getRocks() {
 		return rocks;
 	}
 

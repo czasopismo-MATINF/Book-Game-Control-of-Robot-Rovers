@@ -15,8 +15,9 @@ public class Area implements Serializable {
 	private List<Robot> robots;
 	private List<Battery> batteries;
 	private List<Blizzard> blizzards;
+	private List<ChargingStation> chargingStations;
 
-	private Integer rocks = 0;
+	private int rocks = 0;
 	private boolean hasChasm;
 
 	private MotherShip motherShip;
@@ -25,13 +26,14 @@ public class Area implements Serializable {
 		this.robots = new ArrayList<>();
 		this.batteries = new ArrayList<>();
 		this.blizzards = new ArrayList<>();
+		this.chargingStations = new ArrayList<>();
 	}
 
 	public Area() {
 		super();
 	}
 
-	public Area(Integer rocks, boolean hasChasm) {
+	public Area(int rocks, boolean hasChasm) {
 		super();
 		this.rocks = rocks;
 		this.hasChasm = hasChasm;
@@ -49,7 +51,11 @@ public class Area implements Serializable {
 		return blizzards;
 	}
 
-	public Integer getRocks() {
+	public List<ChargingStation> getChargingStations() {
+		return chargingStations;
+	}
+
+	public int getRocks() {
 		return rocks;
 	}
 
@@ -82,11 +88,11 @@ public class Area implements Serializable {
 		this.addRocks(rocks);
 	}
 
-	public void addRocks(Integer rocks) {
+	public void addRocks(int rocks) {
 		this.rocks += rocks;
 	}
 
-	public Integer mineRocks(Integer rocks) {
+	public int mineRocks(int rocks) {
 		if (rocks <= this.rocks) {
 			this.rocks -= rocks;
 			return rocks;
@@ -97,7 +103,7 @@ public class Area implements Serializable {
 		}
 	}
 
-	public Integer getBlizzardVolume() {
+	public int getBlizzardVolume() {
 		return this.getBlizzards().stream().collect(Collectors.summingInt(b -> b.getVolume()));
 	}
 

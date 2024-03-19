@@ -8,15 +8,15 @@ public class Blizzard implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	private Integer volume;
 
-	public Blizzard(Integer volume) {
+	private int volume;
+
+	public Blizzard(int volume) {
 		super();
 		this.volume = volume;
 	}
 
-	public Integer getVolume() {
+	public int getVolume() {
 		return volume;
 	}
 

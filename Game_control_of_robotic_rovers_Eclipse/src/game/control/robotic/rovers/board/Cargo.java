@@ -11,15 +11,15 @@ public class Cargo implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	private List<Battery> batteriesInCargo = new ArrayList<>();
-	private Integer rocks;
 
-	public Integer load() {
-		
-		Integer batteryWeight = this.batteriesInCargo.stream().collect(Collectors.summingInt(b -> b.getWeight()));
+	private List<Battery> batteriesInCargo = new ArrayList<>();
+	private int rocks;
+
+	public int load() {
+
+		int batteryWeight = this.batteriesInCargo.stream().collect(Collectors.summingInt(b -> b.getWeight()));
 		return batteryWeight + this.rocks;
-		
+
 	}
 
 	public void addBattery(Battery battery) {
@@ -28,22 +28,22 @@ public class Cargo implements Serializable {
 
 	}
 
-	public void addRock(Integer rocks) {
+	public void addRock(int rocks) {
 
 		this.rocks += rocks;
 
 	}
 
 	public List<Battery> getBatteriesInCargo() {
-		
+
 		return batteriesInCargo;
-		
+
 	}
 
-	public Integer getRocks() {
-		
+	public int getRocks() {
+
 		return rocks;
-		
+
 	}
 
 }
