@@ -14,7 +14,7 @@ public class Main {
 	PromptPrinterInterface promptPrinter = new PromptPrinter();
 	PromptCommandHelperInterface promptCommandHelper = new PromptCommandHelper();
 
-	ControlRobotTurnGame game = new ControlRobotTurnGame();
+	ControlRobotTurnGameShell gameShell = new ControlRobotTurnGameShell();
 
 	public void run() {
 		try (Scanner scanner = new Scanner(System.in)) {
@@ -28,7 +28,7 @@ public class Main {
 					System.exit(0);
 				}
 
-				this.game.runCommand(promptCommand, this.promptPrinter);
+				this.gameShell.runCommand(promptCommand, this.promptPrinter);
 			}
 		}
 	}
