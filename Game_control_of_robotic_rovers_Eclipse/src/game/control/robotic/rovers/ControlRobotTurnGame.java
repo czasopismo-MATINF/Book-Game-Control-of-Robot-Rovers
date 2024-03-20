@@ -14,13 +14,25 @@ import java.io.ObjectOutputStream;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import game.control.robotic.rovers.board.*;
 
 public class ControlRobotTurnGame {
 
-	private Planet planet;
+	protected Planet planet;
 
-	private BoardConfig config = new ControlRobotTurnGameConfig();
+	protected BoardConfig config = new ControlRobotTurnGameConfig();
+
+	protected int currentRobotId;
+
+	protected Map<Integer, PromptCommand[]> turnCommands = new TreeMap<>();
+
+	protected String[][] turnCommandConfig = { { "dropCargo" }, { "dropBattery", "collectBattery", "collectRocks" },
+			{ "markerNew", "markerOverwrite" },
+			{ "chargeRover", "chargingStation", "distributeEnergy", "loadCargoToMotherShip", "move" },
+			{ "enterMotherShip", "exitMotherShip" }, { "launch" } };
 
 	public class CommandMethodNotFoundException extends Exception {
 	}
@@ -28,14 +40,14 @@ public class ControlRobotTurnGame {
 	public class CommandMethodArgumentException extends Exception {
 	}
 
-	void validateNumberOfArguments(PromptCommand command, Integer numberOfArguments)
+	protected void validateNumberOfArguments(PromptCommand command, Integer numberOfArguments)
 			throws CommandMethodArgumentException {
 		if (command.argumentsArray.length < numberOfArguments) {
 			throw new CommandMethodArgumentException();
 		}
 	}
 
-	GPSCoordinates getCoords(PromptCommand command, Planet planet) {
+	protected GPSCoordinates getCoords(PromptCommand command, Planet planet) {
 
 		Integer longitude = Integer.valueOf(command.argumentsArray[0]);
 		Integer latitude = Integer.valueOf(command.argumentsArray[1]);
@@ -157,20 +169,20 @@ public class ControlRobotTurnGame {
 	}
 
 	@PromptCommandAnnotation
-	public void addChargingStation(PromptCommand command, PromptPrinterInterface printer) throws CommandMethodArgumentException {
-		
+	public void addChargingStation(PromptCommand command, PromptPrinterInterface printer)
+			throws CommandMethodArgumentException {
+
 		validateNumberOfArguments(command, 2);
-		
+
 		GPSCoordinates gpsCoords = this.getCoords(command, planet);
-		
-		planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getChargingStations().add(
-				new ChargingStation(ControlRobotTurnGameConfig.CHARGING_STATION_ACCESS_POINTS)
-		);
-		
+
+		planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getChargingStations()
+				.add(new ChargingStation(ControlRobotTurnGameConfig.CHARGING_STATION_ACCESS_POINTS));
+
 	}
-	
+
 	@PromptCommandAnnotation
- 	public void addRocks(PromptCommand command, PromptPrinterInterface printer) throws CommandMethodArgumentException {
+	public void addRocks(PromptCommand command, PromptPrinterInterface printer) throws CommandMethodArgumentException {
 
 		validateNumberOfArguments(command, 3);
 
@@ -204,6 +216,183 @@ public class ControlRobotTurnGame {
 		Integer volume = Integer.valueOf(command.argumentsArray[2]);
 
 		planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getBlizzards().add(new Blizzard(volume));
+
+	}
+
+	@PromptCommandAnnotation
+	public void robot(PromptCommand command, PromptPrinterInterface printer) throws CommandMethodArgumentException {
+
+		validateNumberOfArguments(command, 1);
+
+		this.currentRobotId = Integer.valueOf(command.argumentsArray[0]);
+		this.turnCommands.putIfAbsent(this.currentRobotId, new PromptCommand[this.turnCommandConfig.length]);
+
+		printer.println(this.buildRobotCommandStatus(this.currentRobotId));
+
+	}
+
+	protected void addTurnCommand(PromptCommand command) {
+
+		for (int i = 0; i < this.turnCommandConfig.length; ++i) {
+			for (int j = 0; j < this.turnCommandConfig[i].length; ++j) {
+				if (this.turnCommandConfig[i][j].equals(command.camelCasedKeyWords)) {
+					this.turnCommands.putIfAbsent(this.currentRobotId,
+							new PromptCommand[this.turnCommandConfig.length]);
+					this.turnCommands.getOrDefault(currentRobotId,
+							new PromptCommand[this.turnCommandConfig.length])[i] = command;
+				}
+			}
+		}
+
+	}
+
+	@PromptCommandAnnotation
+	public void dropCargo(PromptCommand command, PromptPrinterInterface printer) throws CommandMethodArgumentException {
+
+		this.addTurnCommand(command);
+
+	}
+
+	@PromptCommandAnnotation
+	public void dropBattery(PromptCommand command, PromptPrinterInterface printer)
+			throws CommandMethodArgumentException {
+
+		validateNumberOfArguments(command, 1);
+		this.addTurnCommand(command);
+
+	}
+
+	@PromptCommandAnnotation
+	public void collectBattery(PromptCommand command, PromptPrinterInterface printer)
+			throws CommandMethodArgumentException {
+
+		validateNumberOfArguments(command, 3);
+		this.addTurnCommand(command);
+
+	}
+
+	@PromptCommandAnnotation
+	public void collectRocks(PromptCommand command, PromptPrinterInterface printer)
+			throws CommandMethodArgumentException {
+
+		validateNumberOfArguments(command, 1);
+		this.addTurnCommand(command);
+
+	}
+
+	@PromptCommandAnnotation
+	public void markerNew(PromptCommand command, PromptPrinterInterface printer) throws CommandMethodArgumentException {
+
+		validateNumberOfArguments(command, 1);
+		this.addTurnCommand(command);
+
+	}
+
+	@PromptCommandAnnotation
+	public void markerOverwrite(PromptCommand command, PromptPrinterInterface printer)
+			throws CommandMethodArgumentException {
+
+		validateNumberOfArguments(command, 2);
+		this.addTurnCommand(command);
+
+	}
+
+	@PromptCommandAnnotation
+	public void chargeRover(PromptCommand command, PromptPrinterInterface printer)
+			throws CommandMethodArgumentException {
+
+		validateNumberOfArguments(command, 3);
+		this.addTurnCommand(command);
+
+	}
+
+	@PromptCommandAnnotation
+	public void chargingStation(PromptCommand command, PromptPrinterInterface printer)
+			throws CommandMethodArgumentException {
+
+		this.addTurnCommand(command);
+
+	}
+
+	@PromptCommandAnnotation
+	public void distributeEnergy(PromptCommand command, PromptPrinterInterface printer)
+			throws CommandMethodArgumentException {
+
+		this.addTurnCommand(command);
+
+	}
+
+	@PromptCommandAnnotation
+	public void loadCargoToMotherShip(PromptCommand command, PromptPrinterInterface printer)
+			throws CommandMethodArgumentException {
+
+		this.addTurnCommand(command);
+
+	}
+
+	@PromptCommandAnnotation
+	public void move(PromptCommand command, PromptPrinterInterface printer) throws CommandMethodArgumentException {
+
+		validateNumberOfArguments(command, 1);
+		this.addTurnCommand(command);
+
+	}
+
+	@PromptCommandAnnotation
+	public void enterMotherShip(PromptCommand command, PromptPrinterInterface printer)
+			throws CommandMethodArgumentException {
+
+		this.addTurnCommand(command);
+
+	}
+
+	@PromptCommandAnnotation
+	public void exitMotherShip(PromptCommand command, PromptPrinterInterface printer)
+			throws CommandMethodArgumentException {
+
+		this.addTurnCommand(command);
+
+	}
+
+	@PromptCommandAnnotation
+	public void launch(PromptCommand command, PromptPrinterInterface printer) throws CommandMethodArgumentException {
+
+		this.addTurnCommand(command);
+
+	}
+
+	protected String buildRobotCommandStatus(int robotId) {
+
+		StringBuilder sBuilder = new StringBuilder();
+		sBuilder.append(String.valueOf(robotId)).append(":");
+		for (int i = 0; i < this.turnCommandConfig.length; ++i) {
+			PromptCommand c = this.turnCommands.get(robotId)[i];
+			if (c != null) {
+				sBuilder.append(c.command);
+			} else {
+				sBuilder.append("...");
+			}
+			if (i + 1 < this.turnCommandConfig.length) {
+				sBuilder.append(" | ");
+			}
+		}
+		return sBuilder.toString();
+
+	}
+
+	@PromptCommandAnnotation
+	public void turnStatus(PromptCommand command, PromptPrinterInterface printer)
+			throws CommandMethodArgumentException {
+
+		this.turnCommands.entrySet().stream().forEach(e -> {
+			printer.println(this.buildRobotCommandStatus(e.getKey()));
+		});
+
+	}
+
+	@PromptCommandAnnotation
+	public void turnCommit(PromptCommand command, PromptPrinterInterface printer)
+			throws CommandMethodArgumentException {
 
 	}
 
