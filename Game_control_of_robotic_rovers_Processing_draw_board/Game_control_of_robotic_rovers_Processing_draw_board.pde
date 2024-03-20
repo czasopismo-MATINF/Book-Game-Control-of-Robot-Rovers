@@ -28,12 +28,12 @@ import game.control.robotic.rovers.board.*;
     if( area.getRocks() > 0 ) {
       textSize(15);
       fill(255,255,255);
-      text(String.valueOf(area.getRocks()), 10, 95);
+      text(String.valueOf(area.getRocks()), 10, 90);
     }
     if( area.getBatteries().size() > 0 ) {
        textSize(15);
        fill(255,255,255);
-       text(String.valueOf(area.getBatteries().size()), 80, 95);
+       text(String.valueOf(area.getBatteries().size()), 80, 90);
     }
     if (area.getChargingStations().size() > 0 ) {
        textSize(15);

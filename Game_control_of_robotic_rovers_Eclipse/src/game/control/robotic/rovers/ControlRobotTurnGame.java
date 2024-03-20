@@ -18,10 +18,51 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import game.control.robotic.rovers.board.*;
+import game.control.robotic.rovers.board.BoardConfig.CONFIG_ENTRIES;
 
 public class ControlRobotTurnGame {
 
-	protected Planet planet;
+	protected class ControlRobotTurnGameConfig implements BoardConfig {
+
+		public static int ROBOT_MAX_LOAD = 10;
+		public static int ROBOT_MAX_BATTERIES = 10;
+
+		public static int BATTERY_CAPACITY = 1000;
+		public static int BATTERY_WEIGHT = 1;
+
+		public static int CHARGING_STATION_ACCESS_POINTS = 4;
+
+		public static int MOTHER_SHIP_MAX_LOAD = 200;
+
+		public static int DEFAULT_PLANET_WIDTH = 10;
+		public static int DEFAULT_PLANET_HEIGHT = 10;
+
+		@Override
+		public int getValue(CONFIG_ENTRIES entry) {
+
+			switch (entry) {
+			case ROBOT_MAX_LOAD:
+				return ControlRobotTurnGameConfig.ROBOT_MAX_LOAD;
+			case ROBOT_MAX_BATTERIES:
+				return ControlRobotTurnGameConfig.ROBOT_MAX_BATTERIES;
+			case BATTERY_CAPACITY:
+				return ControlRobotTurnGameConfig.BATTERY_CAPACITY;
+			case BATTERY_WEIGHT:
+				return ControlRobotTurnGameConfig.BATTERY_WEIGHT;
+			case CHARGING_STATION_ACCESS_POINTS:
+				return ControlRobotTurnGameConfig.CHARGING_STATION_ACCESS_POINTS;
+			case MOTHER_SHIP_MAX_LOAD:
+				return ControlRobotTurnGameConfig.MOTHER_SHIP_MAX_LOAD;
+			default:
+				return 0;
+			}
+
+		}
+
+	}
+
+	protected Planet planet = new Planet(ControlRobotTurnGame.ControlRobotTurnGameConfig.DEFAULT_PLANET_WIDTH,
+			ControlRobotTurnGame.ControlRobotTurnGameConfig.DEFAULT_PLANET_HEIGHT);
 
 	protected BoardConfig config = new ControlRobotTurnGameConfig();
 
@@ -152,6 +193,21 @@ public class ControlRobotTurnGame {
 		planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getRobots()
 				.add(new Robot(ControlRobotTurnGameConfig.ROBOT_MAX_LOAD,
 						ControlRobotTurnGameConfig.ROBOT_MAX_BATTERIES, this.config));
+
+	}
+
+	@PromptCommandAnnotation
+	public void addRobots(PromptCommand command, PromptPrinterInterface printer) throws CommandMethodArgumentException {
+
+		validateNumberOfArguments(command, 3);
+
+		GPSCoordinates gpsCoords = this.getCoords(command, planet);
+
+		for (int i = 0; i < Integer.valueOf(command.argumentsArray[2]); ++i) {
+			planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getRobots()
+					.add(new Robot(ControlRobotTurnGameConfig.ROBOT_MAX_LOAD,
+							ControlRobotTurnGameConfig.ROBOT_MAX_BATTERIES, this.config));
+		}
 
 	}
 
@@ -373,7 +429,7 @@ public class ControlRobotTurnGame {
 				sBuilder.append("...");
 			}
 			if (i + 1 < this.turnCommandConfig.length) {
-				sBuilder.append(" | ");
+				sBuilder.append(" > ");
 			}
 		}
 		return sBuilder.toString();
