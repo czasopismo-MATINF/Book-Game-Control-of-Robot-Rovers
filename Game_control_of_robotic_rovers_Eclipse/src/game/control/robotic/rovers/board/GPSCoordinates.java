@@ -11,6 +11,7 @@ public class GPSCoordinates implements Serializable {
 		super();
 
 		this.x = longitude % width;
+		if( this.x < 0 ) this.x = width + this.x;
 
 		if ((height % 2) == 0) {
 			if (latitude >= 0) {
