@@ -2,6 +2,8 @@ package game.control.robotic.rovers.prompt;
 
 public interface PromptPrinterInterface {
 
+	final static String COMMAND_LINE_PROMPT = ">";
+
 	void print(String text);
 
 	void println(String text);

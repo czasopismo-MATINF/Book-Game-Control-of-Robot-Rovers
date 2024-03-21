@@ -1,16 +1,16 @@
 package game.control.robotic.rovers;
 
-import game.control.robotic.rovers.prompt.PromptCommand;
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import game.control.robotic.rovers.board.*;
+
 import game.control.robotic.rovers.command.GameCreateCommandAnnotation;
 import game.control.robotic.rovers.command.GamePlayCommandAnnotation;
 import game.control.robotic.rovers.command.GameStatusCommandAnnotation;
+import game.control.robotic.rovers.command.PromptCommand;
 
 public class ControlRobotTurnGameBoardAndCommands {
 
@@ -224,7 +224,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 	}
 
 	@GameStatusCommandAnnotation
-	public String sendGPSMessage(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
+	public String sendGpsMessage(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
 		return null;
 	}
 
@@ -408,8 +408,9 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	}
 
-	public void turnCommit(PromptCommand command) throws CommandMethodArgumentException {
-
+	@GameStatusCommandAnnotation
+	public String turnCommit(PromptCommand command) throws CommandMethodArgumentException {
+		return null;
 	}
 
 }
