@@ -50,5 +50,18 @@ public class Planet implements Serializable {
 		}
 		return null;
 	}
+	
+	public Robot getRobot(int robotId) {
+		for (var i = 0; i < this.width; ++i) {
+			for (var j = 0; j < this.height; ++j) {
+				for(var r : this.surface[i][j].getRobots()) {
+					if( r.getId() == robotId ) {
+						return r;
+					}
+				}
+			}
+		}
+		return null;
+	}
 
 }

@@ -109,52 +109,47 @@ public class ControlRobotTurnGameShell {
 			}
 
 			Method m;
-			boolean noMethodPass1 = false;
-			boolean noMethodPass2 = false;
 
 			try {
-
 				m = this.game.getClass().getMethod(command.camelCasedKeyWords, PromptCommand.class);
-				if (m != null && m.isAnnotationPresent(GameCreateCommandAnnotation.class)) {
-
-					m.invoke(this.game, command);
-					return;
-
-				}
-				if (m != null && m.isAnnotationPresent(GameStatusCommandAnnotation.class)) {
-
-					String response = (String) m.invoke(this.game, command);
-					printer.println(response);
-					return;
-
-				}
-
 			} catch (NoSuchMethodException e) {
 				// TODO Auto-generated catch block
 				// e.printStackTrace();
-				noMethodPass1 = true;
+				m = null;
+			}
+			if (m != null && m.isAnnotationPresent(GameCreateCommandAnnotation.class)) {
+
+				m.invoke(this.game, command);
+				return;
+
+			}
+			if (m != null && m.isAnnotationPresent(GameStatusCommandAnnotation.class)) {
+
+				String response = (String) m.invoke(this.game, command);
+				printer.println(response);
+				return;
+
 			}
 
 			try {
-
 				m = this.game.getClass().getMethod(command.camelCasedKeyWords, Integer.class, PromptCommand.class);
-				if (m != null && m.isAnnotationPresent(GamePlayCommandAnnotation.class)) {
-
-					m.invoke(this.game, this.currentRobot, command);
-					return;
-
-				}
-
 			} catch (NoSuchMethodException e) {
 				// TODO Auto-generated catch block
 				// e.printStackTrace();
-				noMethodPass2 = true;
+				m = null;
 			}
+			if (m != null && m.isAnnotationPresent(GamePlayCommandAnnotation.class)) {
 
-			if (noMethodPass1 && noMethodPass2) {
-				printer.println("NO SUCH METHOD.");
-			} else {
-				printer.println("METHOD NOT INVOKED");
+				m.invoke(this.game, this.currentRobot, command);
+				return;
+
+			}
+			if (m != null && m.isAnnotationPresent(GameStatusCommandAnnotation.class)) {
+
+				String response = (String) m.invoke(this.game, this.currentRobot, command);
+				printer.println(response);
+				return;
+
 			}
 
 		} catch (SecurityException e) {

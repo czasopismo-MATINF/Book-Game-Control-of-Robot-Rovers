@@ -25,6 +25,14 @@ public class Robot implements Serializable {
 		}
 	}
 
+	public MaxLoadCargo getCargo() {
+		return cargo;
+	}
+
+	public Battery[] getBatteries() {
+		return batteries;
+	}
+
 	public boolean insertBattery(Battery battery, int slot) {
 		if (slot < this.batteries.length && this.batteries[slot] == null) {
 			this.batteries[slot] = battery;

@@ -2,6 +2,7 @@ package game.control.robotic.rovers;
 
 import game.control.robotic.rovers.prompt.PromptCommand;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -27,6 +28,11 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 		public static int DEFAULT_PLANET_WIDTH = 10;
 		public static int DEFAULT_PLANET_HEIGHT = 10;
+
+		public static String MESSAGE_SEPARATOR = "\n";
+
+		public static int GPS_MESSAGE_ENERGY = 20;
+		public static int LOCAL_MESSAGE_ENERGY = 5;
 
 		@Override
 		public int getValue(CONFIG_ENTRIES entry) {
@@ -75,9 +81,6 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	protected class CommandMethodArgumentException extends Exception {
 
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = 1L;
 
 	}
@@ -99,52 +102,6 @@ public class ControlRobotTurnGameBoardAndCommands {
 		return gpsCoords;
 
 	}
-
-//	@PromptCommandAnnotation
-//	public void saveBoard(PromptCommand command, PromptPrinterInterface printer) throws CommandMethodArgumentException {
-//
-//		validateNumberOfArguments(command, 1);
-//
-//		String fileName = command.argumentsArray[0];
-//
-//		try (FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-//				ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
-//
-//			objectOutputStream.writeObject(this.planet);
-//
-//		} catch (FileNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//
-//	}
-//
-//	@PromptCommandAnnotation
-//	public void loadBoard(PromptCommand command, PromptPrinterInterface printer) throws CommandMethodArgumentException {
-//
-//		validateNumberOfArguments(command, 1);
-//
-//		String fileName = command.argumentsArray[0];
-//
-//		try (FileInputStream fileInputStream = new FileInputStream(fileName);
-//				ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
-//
-//			this.planet = (Planet) objectInputStream.readObject();
-//
-//		} catch (FileNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (ClassNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//	}
 
 	@GameCreateCommandAnnotation
 	public void planet(PromptCommand command) throws CommandMethodArgumentException {
@@ -266,17 +223,44 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	}
 
-//	@PromptCommandAnnotation
-//	public void robot(PromptCommand command, PromptPrinterInterface printer) throws CommandMethodArgumentException {
-//
-//		validateNumberOfArguments(command, 1);
-//
-//		this.currentRobotId = Integer.valueOf(command.argumentsArray[0]);
-//		this.turnCommands.putIfAbsent(this.currentRobotId, new PromptCommand[this.turnCommandConfig.length]);
-//
-//		printer.println(this.buildRobotCommandStatus(this.currentRobotId));
-//
-//	}
+	@GameStatusCommandAnnotation
+	public String sendGPSMessage(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
+		return null;
+	}
+
+	@GameStatusCommandAnnotation
+	public String sendMessage(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
+		return null;
+	}
+
+	@GameStatusCommandAnnotation
+	public String lookAround(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
+		return null;
+	}
+
+	@GameStatusCommandAnnotation
+	public String checkSelf(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
+
+		var robot = this.planet.getRobot(robotId);
+		if (robot == null)
+			return null;
+
+		var sBuilder = new StringBuilder();
+
+		sBuilder.append(String.format("cargo {load:%d}", robot.getCargo().load()));
+		Arrays.asList(robot.getBatteries()).stream().forEach(b -> {
+			sBuilder.append(ControlRobotTurnGameConfig.MESSAGE_SEPARATOR);
+			sBuilder.append(String.format("battery {energy:%d;capacity:%d;weigth:%d}", b.getEnergy(), b.getCapacity(),
+					b.getWeight()));
+		});
+
+		return sBuilder.toString();
+	}
+
+	@GameStatusCommandAnnotation
+	public String checkGPS(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
+		return null;
+	}
 
 	protected void addTurnCommand(Integer robotId, PromptCommand command) {
 
