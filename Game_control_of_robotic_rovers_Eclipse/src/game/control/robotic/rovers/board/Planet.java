@@ -1,6 +1,8 @@
 package game.control.robotic.rovers.board;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Planet implements Serializable {
 
@@ -51,6 +53,18 @@ public class Planet implements Serializable {
 		return null;
 	}
 	
+	public MotherShip getMotherShip() {
+		for (int i = 0; i < this.width; ++i) {
+			for (int j = 0; j < this.height; ++j) {
+				MotherShip motherShip = this.surface[i][j].getMotherShip();
+				if (motherShip != null) {
+					return motherShip;
+				}
+			}
+		}
+		return null;
+	}
+	
 	public Robot getRobot(int robotId) {
 		for (var i = 0; i < this.width; ++i) {
 			for (var j = 0; j < this.height; ++j) {
@@ -62,6 +76,16 @@ public class Planet implements Serializable {
 			}
 		}
 		return null;
+	}
+	
+	public List<Robot> getRobots() {
+		List<Robot> robots = new ArrayList<>();
+		for (var i = 0; i < this.width; ++i) {
+			for (var j = 0; j < this.height; ++j) {
+				robots.addAll(this.surface[i][j].getRobots());
+			}
+		}
+		return robots;
 	}
 
 }

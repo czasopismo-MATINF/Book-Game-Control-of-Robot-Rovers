@@ -14,6 +14,7 @@ public class MotherShip implements Serializable {
 	private List<Robot> robots = new ArrayList<>();
 	private Cargo cargo = new Cargo();
 	private int maxLoad;
+	private boolean launched;
 
 	public MotherShip(int maxLoad) {
 		super();
@@ -30,6 +31,10 @@ public class MotherShip implements Serializable {
 
 	public int getMaxLoad() {
 		return maxLoad;
+	}
+	
+	public boolean isLaunched() {
+		return this.launched;
 	}
 
 }

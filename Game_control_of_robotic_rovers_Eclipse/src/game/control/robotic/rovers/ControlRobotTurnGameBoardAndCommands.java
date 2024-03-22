@@ -6,7 +6,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import game.control.robotic.rovers.board.*;
-
+import game.control.robotic.rovers.command.CommandMethodArgumentException;
 import game.control.robotic.rovers.command.GameCreateCommandAnnotation;
 import game.control.robotic.rovers.command.GamePlayCommandAnnotation;
 import game.control.robotic.rovers.command.GameStatusCommandAnnotation;
@@ -78,12 +78,6 @@ public class ControlRobotTurnGameBoardAndCommands {
 			{ "markerNew", "markerOverwrite" },
 			{ "chargeRover", "chargingStation", "distributeEnergy", "loadCargoToMotherShip", "move" },
 			{ "enterMotherShip", "exitMotherShip" }, { "launch" } };
-
-	protected class CommandMethodArgumentException extends Exception {
-
-		private static final long serialVersionUID = 1L;
-
-	}
 
 	protected void validateNumberOfArguments(PromptCommand command, Integer numberOfArguments)
 			throws CommandMethodArgumentException {
@@ -354,7 +348,6 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	@GamePlayCommandAnnotation
 	public void move(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-
 		validateNumberOfArguments(command, 1);
 		this.addTurnCommand(robotId, command);
 

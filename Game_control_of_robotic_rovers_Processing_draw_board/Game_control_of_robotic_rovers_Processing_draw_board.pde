@@ -1,14 +1,24 @@
 import java.io.FileNotFoundException;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.Executors;
+
+import java.lang.InterruptedException;
+
 import java.awt.Toolkit;
+
 import game.control.robotic.rovers.board.*;
-  
+import game.control.robotic.rovers.*;
+
+
  Planet planet;
   
-  void loadBoard(String fileName) {
+  void loadBoard(String filePath) {
 
-    try (FileInputStream fileInputStream = new FileInputStream(fileName);
+    try (FileInputStream fileInputStream = new FileInputStream(new File(filePath));
         ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
         planet = (Planet) objectInputStream.readObject();
     } catch(ClassNotFoundException e) {
@@ -139,9 +149,9 @@ void keyPressed() {
   }
   
 }
-  
-String filePath = "planet ... file ... path ...";
+String filePath =  "planet ... file ... path ...";
 
+/*
 void setup() {
 
    size(600,600);
@@ -160,5 +170,60 @@ void draw() {
      timer = millis();
      tk.beep();
   }
+  
+}
+*/
+
+ControlRobotTurnGameBoardAndCommands game;
+ControlRobotConcurrentTurnGameShell gameShell;
+ExecutorService shellThreadPool;
+Future<Boolean> gameResult;
+{
+  loadBoard(filePath);
+  game = new ControlRobotTurnGameBoardAndCommands();
+  game.setPlanet(planet);
+  gameShell = new ControlRobotConcurrentTurnGameShell(game);
+  shellThreadPool = Executors.newFixedThreadPool(1);
+  planet = game.getPlanet();
+}
+
+void printFinishScreen() {
+  
+  //background(0,0,0);
+  
+}
+
+void setup() {
+
+   size(600,600);
+   
+   printBoard();
+   timer = millis();
+   tk.beep();
+   
+   gameResult = shellThreadPool.submit(gameShell);
+
+}
+  
+void draw() {
+  
+   if(millis() - timer > 5000) {
+
+     printBoard();
+     
+     if(gameResult.isDone()) {
+       
+       try {
+         printFinishScreen();
+       } catch (Exception e) {
+         e.printStackTrace();
+       }
+       
+     }
+
+     timer = millis();
+     tk.beep();
+     
+   }
   
 }
