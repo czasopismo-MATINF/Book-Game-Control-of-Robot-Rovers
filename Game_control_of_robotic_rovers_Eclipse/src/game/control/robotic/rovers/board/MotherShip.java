@@ -14,7 +14,7 @@ public class MotherShip implements Serializable {
 	private List<Robot> robots = new ArrayList<>();
 	private Cargo cargo = new Cargo();
 	private int maxLoad;
-	private boolean launched;
+	private boolean launched = false;
 
 	public MotherShip(int maxLoad) {
 		super();

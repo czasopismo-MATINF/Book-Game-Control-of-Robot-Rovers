@@ -185,7 +185,7 @@ public class ControlRobotTurnGameShell {
 			m = this.game.getClass().getMethod(command.camelCasedKeyWords, PromptCommand.class);
 		} catch (NoSuchMethodException e) {
 			// TODO Auto-generated catch block
-			// e.printStackTrace();
+			e.printStackTrace();
 		}
 		if (m != null && m.isAnnotationPresent(GameCreateCommandAnnotation.class)) {
 
@@ -205,7 +205,7 @@ public class ControlRobotTurnGameShell {
 			m = this.game.getClass().getMethod(command.camelCasedKeyWords, Integer.class, PromptCommand.class);
 		} catch (NoSuchMethodException e) {
 			// TODO Auto-generated catch block
-			// e.printStackTrace();
+			e.printStackTrace();
 		}
 		if (m != null && m.isAnnotationPresent(GamePlayCommandAnnotation.class)) {
 

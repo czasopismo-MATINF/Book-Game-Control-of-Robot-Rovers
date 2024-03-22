@@ -149,7 +149,7 @@ void keyPressed() {
   }
   
 }
-String filePath =  "planet ... file ... path ...";
+String filePath =  "planet ... file ... path";
 
 /*
 void setup() {
@@ -172,17 +172,17 @@ void draw() {
   }
   
 }
-*/
 
+*/
 ControlRobotTurnGameBoardAndCommands game;
-ControlRobotConcurrentTurnGameShell gameShell;
+ControlRobotTurnGameConcurrentShell gameShell;
 ExecutorService shellThreadPool;
 Future<Boolean> gameResult;
 {
   loadBoard(filePath);
   game = new ControlRobotTurnGameBoardAndCommands();
   game.setPlanet(planet);
-  gameShell = new ControlRobotConcurrentTurnGameShell(game);
+  gameShell = new ControlRobotTurnGameConcurrentShell(game);
   shellThreadPool = Executors.newFixedThreadPool(1);
   planet = game.getPlanet();
 }
@@ -207,19 +207,21 @@ void setup() {
   
 void draw() {
   
-   if(millis() - timer > 5000) {
+   if(millis() - timer > 1000) {
 
-     printBoard();
+   synchronized(game) {
+       printBoard();
+   }
      
-     if(gameResult.isDone()) {
+   if(gameResult.isDone()) {
        
-       try {
-         printFinishScreen();
-       } catch (Exception e) {
-         e.printStackTrace();
-       }
-       
+     try {
+       printFinishScreen();
+     } catch (Exception e) {
+       e.printStackTrace();
      }
+       
+    }
 
      timer = millis();
      tk.beep();

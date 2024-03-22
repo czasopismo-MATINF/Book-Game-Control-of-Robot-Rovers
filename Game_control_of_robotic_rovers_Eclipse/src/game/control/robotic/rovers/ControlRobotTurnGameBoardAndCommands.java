@@ -2,7 +2,6 @@ package game.control.robotic.rovers;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import game.control.robotic.rovers.board.*;
@@ -11,6 +10,8 @@ import game.control.robotic.rovers.command.GameCreateCommandAnnotation;
 import game.control.robotic.rovers.command.GamePlayCommandAnnotation;
 import game.control.robotic.rovers.command.GameStatusCommandAnnotation;
 import game.control.robotic.rovers.command.PromptCommand;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ControlRobotTurnGameBoardAndCommands {
 
@@ -57,12 +58,44 @@ public class ControlRobotTurnGameBoardAndCommands {
 		}
 
 	}
-
+	
 	protected BoardConfig config = new ControlRobotTurnGameConfig();
 
 	protected Planet planet = new Planet(
 			ControlRobotTurnGameBoardAndCommands.ControlRobotTurnGameConfig.DEFAULT_PLANET_WIDTH,
 			ControlRobotTurnGameBoardAndCommands.ControlRobotTurnGameConfig.DEFAULT_PLANET_HEIGHT);
+
+	protected Map<Integer, PromptCommand[]> turnCommands = new ConcurrentHashMap<>();
+	
+	enum TCP { //TURN COMMIT PHASES
+		
+		DROP_CARGO(0),
+		DROP_COLLECT(1),
+		MARKER(2),
+		MOVE(3),
+		ENTER_EXIT_MOTHER_SHIP(4),
+		LAUNCH(5);
+		
+		private int phaseNumber;
+		
+		private TCP(int phaseNumber) {
+			this.phaseNumber = phaseNumber;
+		}
+		
+		public int gPN() {	// getPhaseNumber
+			return this.phaseNumber;
+		}
+		
+	}
+	
+	protected COMMAND[][] turnCommandConfig = {
+		{COMMAND.DROP_CARGO},
+		{COMMAND.DROP_BATTERY, COMMAND.COLLECT_BATTERY, COMMAND.COLLECT_ROCKS},
+		{COMMAND.MARKER_NEW, COMMAND.MARKER_OVERWRITE},
+		{COMMAND.CHARGE_ROVER, COMMAND.CHARGING_STATION, COMMAND.DISTRIBUTE_ENERGY, COMMAND.LOAD_CARGO_TO_MOTHER_SHIP, COMMAND.MOVE},
+		{COMMAND.ENTER_MOTHER_SHIP, COMMAND.EXIT_MOTHER_SHIP},
+		{COMMAND.LAUNCH}
+	};
 
 	public Planet getPlanet() {
 		return this.planet;
@@ -71,14 +104,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 	public void setPlanet(Planet planet) {
 		this.planet = planet;
 	}
-
-	protected Map<Integer, PromptCommand[]> turnCommands = new TreeMap<>();
-
-	protected String[][] turnCommandConfig = { { "dropCargo" }, { "dropBattery", "collectBattery", "collectRocks" },
-			{ "markerNew", "markerOverwrite" },
-			{ "chargeRover", "chargingStation", "distributeEnergy", "loadCargoToMotherShip", "move" },
-			{ "enterMotherShip", "exitMotherShip" }, { "launch" } };
-
+	
 	protected void validateNumberOfArguments(PromptCommand command, Integer numberOfArguments)
 			throws CommandMethodArgumentException {
 		if (command.argumentsArray.length < numberOfArguments) {
@@ -130,7 +156,6 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	@GameCreateCommandAnnotation
 	public void addRobot(PromptCommand command) throws CommandMethodArgumentException {
-
 		validateNumberOfArguments(command, 2);
 
 		GPSCoordinates gpsCoords = this.getCoords(command, planet);
@@ -250,17 +275,19 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 		return sBuilder.toString();
 	}
+	
 
 	@GameStatusCommandAnnotation
 	public String checkGPS(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
 		return null;
 	}
+	
 
 	protected void addTurnCommand(Integer robotId, PromptCommand command) {
 
 		for (int i = 0; i < this.turnCommandConfig.length; ++i) {
 			for (int j = 0; j < this.turnCommandConfig[i].length; ++j) {
-				if (this.turnCommandConfig[i][j].equals(command.camelCasedKeyWords)) {
+				if (this.turnCommandConfig[i][j].camelCasedName.equals(command.camelCasedKeyWords)) {
 					this.turnCommands.putIfAbsent(robotId, new PromptCommand[this.turnCommandConfig.length]);
 					this.turnCommands.getOrDefault(robotId,
 							new PromptCommand[this.turnCommandConfig.length])[i] = command;
@@ -269,6 +296,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		}
 
 	}
+	
 
 	@GamePlayCommandAnnotation
 	public void dropCargo(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -276,6 +304,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 
 	@GamePlayCommandAnnotation
 	public void dropBattery(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -284,6 +313,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 
 	@GamePlayCommandAnnotation
 	public void collectBattery(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -292,6 +322,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 
 	@GamePlayCommandAnnotation
 	public void collectRocks(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -300,6 +331,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 
 	@GamePlayCommandAnnotation
 	public void markerNew(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -308,6 +340,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 
 	@GamePlayCommandAnnotation
 	public void markerOverwrite(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -316,6 +349,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 
 	@GamePlayCommandAnnotation
 	public void chargeRover(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -324,6 +358,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 
 	@GamePlayCommandAnnotation
 	public void chargingStation(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -331,6 +366,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 
 	@GamePlayCommandAnnotation
 	public void distributeEnergy(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -338,6 +374,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 
 	@GamePlayCommandAnnotation
 	public void loadCargoToMotherShip(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -345,6 +382,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 
 	@GamePlayCommandAnnotation
 	public void move(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -352,6 +390,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 
 	@GamePlayCommandAnnotation
 	public void enterMotherShip(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -359,6 +398,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 
 	@GamePlayCommandAnnotation
 	public void exitMotherShip(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -366,6 +406,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 
 	@GamePlayCommandAnnotation
 	public void launch(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -373,6 +414,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 
 	protected String buildRobotCommandStatus(int robotId) {
 
@@ -392,6 +434,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		return sBuilder.toString();
 
 	}
+	
 
 	@GameStatusCommandAnnotation
 	public String turnStatus(PromptCommand command) throws CommandMethodArgumentException {
@@ -400,9 +443,24 @@ public class ControlRobotTurnGameBoardAndCommands {
 				.collect(Collectors.joining("\n"));
 
 	}
+	
 
+	protected void movePhase() {
+
+		this.turnCommands.entrySet().stream().forEach(e -> {
+			if(COMMAND.valueOf(e.getValue()[TCP.MOVE.gPN()].camelCasedKeyWords.toUpperCase()) == COMMAND.MOVE) {
+				this.planet.moveRobot(e.getKey(), e.getValue()[TCP.MOVE.gPN()].argumentsArray[0]);
+			}
+		});
+		
+	}
+	
+	
 	@GameStatusCommandAnnotation
-	public String turnCommit(PromptCommand command) throws CommandMethodArgumentException {
+	public synchronized String turnCommit(PromptCommand command) throws CommandMethodArgumentException {
+
+		movePhase();
+		
 		return null;
 	}
 

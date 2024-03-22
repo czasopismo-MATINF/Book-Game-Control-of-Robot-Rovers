@@ -11,10 +11,10 @@ public class Planet implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private int width;
-	private int height;
+	protected int width;
+	protected int height;
 
-	private Area[][] surface;
+	protected Area[][] surface;
 
 	public Planet(int width, int height) {
 		super();
@@ -86,6 +86,51 @@ public class Planet implements Serializable {
 			}
 		}
 		return robots;
+	}
+
+	public GPSCoordinates robotGPSCoordinates(int robotId) {
+		for (var i = 0; i < this.width; ++i) {
+			for (var j = 0; j < this.height; ++j) {
+				for(var r : this.surface[i][j].getRobots()) {
+					if( r.getId() == robotId ) {
+						return new GPSCoordinates(i,j,this.width,this.height,GPSCoordinates.Mode.XYMODE);
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	public void moveRobot(int robotId, String direction) {
+
+		Robot robot = this.getRobots().stream().filter(r -> r.getId() == robotId).findAny().get();
+		GPSCoordinates gpsCoords = this.robotGPSCoordinates(robot.getId());
+		
+		switch(direction) {
+		
+			case "N", "n" : {
+				if(gpsCoords.getN() != null) {
+					this.surface[gpsCoords.getX()][gpsCoords.getY()].getRobots().remove(robot);
+					this.surface[gpsCoords.getN().getX()][gpsCoords.getN().getY()].getRobots().add(robot);
+				}
+			} return;
+			case "E","e" : {
+				this.surface[gpsCoords.getX()][gpsCoords.getY()].getRobots().remove(robot);
+				this.surface[gpsCoords.getE().getX()][gpsCoords.getE().getY()].getRobots().add(robot);
+			} return;			
+			case "S", "s" : {
+				if(gpsCoords.getS() != null) {
+					this.surface[gpsCoords.getX()][gpsCoords.getY()].getRobots().remove(robot);
+					this.surface[gpsCoords.getS().getX()][gpsCoords.getS().getY()].getRobots().add(robot);
+				}
+			} return;
+			case "W","w" : {
+				this.surface[gpsCoords.getX()][gpsCoords.getY()].getRobots().remove(robot);
+				this.surface[gpsCoords.getW().getX()][gpsCoords.getW().getY()].getRobots().add(robot);
+			} return;
+			
+		}
+		
 	}
 
 }
