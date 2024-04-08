@@ -149,7 +149,8 @@ void keyPressed() {
   }
   
 }
-String filePath =  "planet ... file ... path";
+//String filePath =  "planet ... file ... path";
+String filePath = "C:\\Users\\mikol\\git\\Book-Game-Control-of-Robot-Rovers\\Game_Control_of_Robot_Rovers_Eclipse\\board.in";
 
 /*
 void setup() {
@@ -172,7 +173,6 @@ void draw() {
   }
   
 }
-
 */
 ControlRobotTurnGameBoardAndCommands game;
 ControlRobotTurnGameConcurrentShell gameShell;

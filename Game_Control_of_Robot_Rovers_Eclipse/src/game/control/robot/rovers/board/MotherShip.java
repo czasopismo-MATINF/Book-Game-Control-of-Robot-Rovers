@@ -32,9 +32,13 @@ public class MotherShip implements Serializable {
 	public int getMaxLoad() {
 		return maxLoad;
 	}
-	
+
 	public boolean isLaunched() {
 		return this.launched;
+	}
+
+	public void launch() {
+		this.launched = true;
 	}
 
 }

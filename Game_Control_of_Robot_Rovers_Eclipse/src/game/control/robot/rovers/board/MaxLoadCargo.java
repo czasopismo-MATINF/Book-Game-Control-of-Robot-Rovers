@@ -41,7 +41,7 @@ public class MaxLoadCargo implements Serializable {
 			return rocks;
 		} else {
 			Integer l = this.load();
-			this.rocks = this.maxLoad;
+			this.rocks += this.maxLoad - this.load();
 			return this.maxLoad - l;
 		}
 	}
