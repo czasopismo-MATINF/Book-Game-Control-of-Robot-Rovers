@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import game.control.robot.rovers.board.MotherShip;
 import game.control.robot.rovers.command.CommandMethodArgumentException;
@@ -113,6 +114,9 @@ public class ControlRobotTurnGameConcurrentShell implements Callable<Boolean> {
 			}
 			
 			// if all robots run out of energy, return false
+			if(this.game.getPlanet().getRobots().stream().collect(Collectors.summingInt(r -> r.getTotalEnergy())) == 0) {
+				return false;
+			}
 			
 		}
 

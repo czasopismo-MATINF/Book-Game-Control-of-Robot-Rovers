@@ -1,6 +1,8 @@
 package game.control.robot.rovers.board;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class Robot implements Serializable {
 
@@ -52,6 +54,10 @@ public class Robot implements Serializable {
 
 	public int getId() {
 		return id;
+	}
+	
+	public int getTotalEnergy() {
+		return Arrays.asList(this.getBatteries()).stream().collect(Collectors.summingInt(b -> b.getEnergy()));
 	}
 
 }

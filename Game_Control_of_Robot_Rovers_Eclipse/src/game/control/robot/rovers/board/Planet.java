@@ -2,6 +2,7 @@ package game.control.robot.rovers.board;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.ArrayList;
 
 public class Planet implements Serializable {
@@ -103,7 +104,12 @@ public class Planet implements Serializable {
 	
 	public void moveRobot(int robotId, String direction) {
 
-		Robot robot = this.getRobots().stream().filter(r -> r.getId() == robotId).findAny().get();
+		Robot robot;
+		try {
+			robot = this.getRobots().stream().filter(r -> r.getId() == robotId).findAny().get();
+		} catch (NoSuchElementException e) {
+			return;
+		}
 		GPSCoordinates gpsCoords = this.robotGPSCoordinates(robot.getId());
 		
 		switch(direction) {

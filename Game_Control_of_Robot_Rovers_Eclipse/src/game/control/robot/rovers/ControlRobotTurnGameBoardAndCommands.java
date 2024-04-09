@@ -61,10 +61,22 @@ public class ControlRobotTurnGameBoardAndCommands {
 	
 	protected BoardConfig config = new ControlRobotTurnGameConfig();
 
+	/********************/
+	
 	protected Planet planet = new Planet(
 			ControlRobotTurnGameBoardAndCommands.ControlRobotTurnGameConfig.DEFAULT_PLANET_WIDTH,
 			ControlRobotTurnGameBoardAndCommands.ControlRobotTurnGameConfig.DEFAULT_PLANET_HEIGHT);
 
+	public Planet getPlanet() {
+		return this.planet;
+	}
+
+	public void setPlanet(Planet planet) {
+		this.planet = planet;
+	}
+	
+	/********************/
+	
 	protected Map<Integer, PromptCommand[]> turnCommands = new ConcurrentHashMap<>();
 	
 	enum TCP { //TURN COMMIT PHASES
@@ -97,13 +109,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		{COMMAND.LAUNCH}
 	};
 
-	public Planet getPlanet() {
-		return this.planet;
-	}
-
-	public void setPlanet(Planet planet) {
-		this.planet = planet;
-	}
+	/********************/
 	
 	protected void validateNumberOfArguments(PromptCommand command, Integer numberOfArguments)
 			throws CommandMethodArgumentException {
@@ -123,6 +129,8 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	}
 
+	/********************/
+	
 	@GameCreateCommandAnnotation
 	public void planet(PromptCommand command) throws CommandMethodArgumentException {
 
@@ -242,6 +250,8 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	}
 
+	/********************/
+	
 	@GameStatusCommandAnnotation
 	public String sendGpsMessage(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
 		return null;
@@ -276,12 +286,12 @@ public class ControlRobotTurnGameBoardAndCommands {
 		return sBuilder.toString();
 	}
 	
-
 	@GameStatusCommandAnnotation
 	public String checkGPS(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
 		return null;
 	}
 	
+	/********************/
 
 	protected void addTurnCommand(Integer robotId, PromptCommand command) {
 
@@ -296,7 +306,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		}
 
 	}
-	
+
 
 	@GamePlayCommandAnnotation
 	public void dropCargo(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -415,6 +425,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	}
 	
+	/********************/
 
 	protected String buildRobotCommandStatus(int robotId) {
 
@@ -443,12 +454,15 @@ public class ControlRobotTurnGameBoardAndCommands {
 				.collect(Collectors.joining("\n"));
 
 	}
-	
 
+	/********************/
+	
 	protected void movePhase() {
 
 		this.turnCommands.entrySet().stream().forEach(e -> {
-			if(COMMAND.valueOf(e.getValue()[TCP.MOVE.gPN()].camelCasedKeyWords.toUpperCase()) == COMMAND.MOVE) {
+			// if there is a command and the command is MOVE
+			if(e.getValue()[TCP.MOVE.gPN()] != null &&
+				COMMAND.valueOf(e.getValue()[TCP.MOVE.gPN()].underscoreCasedKeyWords) == COMMAND.MOVE) {
 				this.planet.moveRobot(e.getKey(), e.getValue()[TCP.MOVE.gPN()].argumentsArray[0]);
 			}
 		});

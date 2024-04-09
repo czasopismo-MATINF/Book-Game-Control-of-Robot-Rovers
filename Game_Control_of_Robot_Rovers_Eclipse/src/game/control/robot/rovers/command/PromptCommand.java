@@ -14,6 +14,7 @@ public class PromptCommand {
 	public String[] keyWordsArray;
 	public String[] argumentsArray;
 	public String camelCasedKeyWords;
+	public String underscoreCasedKeyWords;
 
 	public PromptCommand(String command) {
 
@@ -30,7 +31,15 @@ public class PromptCommand {
 		}
 
 		this.camelCasedKeyWords = PromptCommand.makeCamelCased(this.keyWordsArray);
+		this.underscoreCasedKeyWords = PromptCommand.makeUnderscoreCased(this.keyWordsArray);
 
+	}
+	
+	public static String makeUnderscoreCased(String[] words) {
+		
+		String out = Arrays.asList(words).stream().map(w -> w.toUpperCase()).collect(Collectors.joining("_"));
+		return out;
+		
 	}
 
 	public static String makeCamelCased(String[] words) {
