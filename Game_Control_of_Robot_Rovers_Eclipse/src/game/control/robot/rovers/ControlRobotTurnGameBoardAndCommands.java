@@ -79,36 +79,45 @@ public class ControlRobotTurnGameBoardAndCommands {
 	
 	protected Map<Integer, PromptCommand[]> turnCommands = new ConcurrentHashMap<>();
 	
-	enum TCP { //TURN COMMIT PHASES
+	protected COMMAND[][] turnCommandConfig = {
+			{COMMAND.DROP_CARGO},
+			{COMMAND.DROP_BATTERY, COMMAND.COLLECT_BATTERY, COMMAND.COLLECT_ROCKS},
+			{COMMAND.MARKER_NEW, COMMAND.MARKER_OVERWRITE},
+			{COMMAND.CHARGE_ROVER, COMMAND.CHARGING_STATION, COMMAND.DISTRIBUTE_ENERGY, COMMAND.LOAD_CARGO_TO_MOTHER_SHIP, COMMAND.MOVE},
+			{COMMAND.ENTER_MOTHER_SHIP, COMMAND.EXIT_MOTHER_SHIP},
+			{COMMAND.LAUNCH}
+		};
+	
+	/********************/
+	
+	enum TP { //TURN PHASE
 		
-		DROP_CARGO(0),
-		DROP_COLLECT(1),
-		MARKER(2),
-		MOVE(3),
-		ENTER_EXIT_MOTHER_SHIP(4),
-		LAUNCH(5);
-		
-		private int phaseNumber;
-		
-		private TCP(int phaseNumber) {
-			this.phaseNumber = phaseNumber;
-		}
-		
-		public int gPN() {	// getPhaseNumber
-			return this.phaseNumber;
-		}
+		DROP_CARGO,
+		DROP_BATTERY,
+		COLLECT_BATTERY,
+		COLLECT_ROCKS,
+		MARKER_NEW,
+		MARKER_OVERWRITE,
+		CHARGE_ROVER,
+		CHARGING_STATION,
+		DISTRIBUTE_ENERGY,
+		LOAD_CARGO_TO_MOTHER_SHIP,
+		MOVE,
+		ENTER_MOTHER_SHIP,
+		EXIT_MOTHER_SHIP,
+		LAUNCH;
 		
 	}
 	
-	protected COMMAND[][] turnCommandConfig = {
-		{COMMAND.DROP_CARGO},
-		{COMMAND.DROP_BATTERY, COMMAND.COLLECT_BATTERY, COMMAND.COLLECT_ROCKS},
-		{COMMAND.MARKER_NEW, COMMAND.MARKER_OVERWRITE},
-		{COMMAND.CHARGE_ROVER, COMMAND.CHARGING_STATION, COMMAND.DISTRIBUTE_ENERGY, COMMAND.LOAD_CARGO_TO_MOTHER_SHIP, COMMAND.MOVE},
-		{COMMAND.ENTER_MOTHER_SHIP, COMMAND.EXIT_MOTHER_SHIP},
-		{COMMAND.LAUNCH}
+	protected TP[][] END_OF_TURN_COMMAND_CONFIG = {
+		{TP.DROP_CARGO},
+		{TP.DROP_BATTERY, TP.COLLECT_BATTERY, TP.COLLECT_ROCKS},
+		{TP.MARKER_NEW, TP.MARKER_OVERWRITE},
+		{TP.CHARGE_ROVER, TP.CHARGING_STATION, TP.DISTRIBUTE_ENERGY, TP.LOAD_CARGO_TO_MOTHER_SHIP, TP.MOVE},
+		{TP.EXIT_MOTHER_SHIP, TP.ENTER_MOTHER_SHIP},
+		{TP.LAUNCH}
 	};
-
+	
 	/********************/
 	
 	protected void validateNumberOfArguments(PromptCommand command, Integer numberOfArguments)
@@ -286,10 +295,14 @@ public class ControlRobotTurnGameBoardAndCommands {
 		return sBuilder.toString();
 	}
 	
+	
 	@GameStatusCommandAnnotation
 	public String checkGPS(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
 		return null;
 	}
+	
+	/********************/
+	
 	
 	/********************/
 
@@ -306,6 +319,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		}
 
 	}
+	
 
 
 	@GamePlayCommandAnnotation
@@ -314,6 +328,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 	
 
 	@GamePlayCommandAnnotation
@@ -324,6 +339,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	}
 	
+	
 
 	@GamePlayCommandAnnotation
 	public void collectBattery(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -332,6 +348,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 	
 
 	@GamePlayCommandAnnotation
@@ -342,6 +359,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	}
 	
+	
 
 	@GamePlayCommandAnnotation
 	public void markerNew(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -350,6 +368,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 	
 
 	@GamePlayCommandAnnotation
@@ -360,6 +379,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	}
 	
+	
 
 	@GamePlayCommandAnnotation
 	public void chargeRover(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -369,6 +389,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	}
 	
+	
 
 	@GamePlayCommandAnnotation
 	public void chargingStation(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -376,6 +397,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 	
 
 	@GamePlayCommandAnnotation
@@ -385,6 +407,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	}
 	
+	
 
 	@GamePlayCommandAnnotation
 	public void loadCargoToMotherShip(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -392,6 +415,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 	
 
 	@GamePlayCommandAnnotation
@@ -401,6 +425,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	}
 	
+	
 
 	@GamePlayCommandAnnotation
 	public void enterMotherShip(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -408,6 +433,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
 	
 
 	@GamePlayCommandAnnotation
@@ -417,6 +443,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	}
 	
+	
 
 	@GamePlayCommandAnnotation
 	public void launch(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
@@ -424,6 +451,9 @@ public class ControlRobotTurnGameBoardAndCommands {
 		this.addTurnCommand(robotId, command);
 
 	}
+	
+	/********************/
+	
 	
 	/********************/
 
@@ -446,6 +476,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	}
 	
+	
 
 	@GameStatusCommandAnnotation
 	public String turnStatus(PromptCommand command) throws CommandMethodArgumentException {
@@ -454,18 +485,87 @@ public class ControlRobotTurnGameBoardAndCommands {
 				.collect(Collectors.joining("\n"));
 
 	}
-
+	
 	/********************/
+	
+	
+	/********************/	
+
+	
+	protected void dropCargoPhase() {
+		
+	}
+	
+	
+	protected void dropBatteryPhase() {
+		
+	}
+	
+	
+	protected void collectBatteryPhase() {
+		
+	}
+	
+	
+	protected void collectRocksPhase() {
+		
+	}
+	
+	
+	protected void markerNewPhase() {
+		
+	}
+	
+	
+	protected void markerOverwritePhase() {
+		
+	}
+	
+	
+	protected void chargeRoverPhase() {
+		
+	}
+	
+	
+	protected void chargingStationPhase() {
+		
+	}
+	
+	
+	protected void distributeEnergyPhase() {
+		
+	}
+	
+	
+	protected void loadCargoToMotherShipPhase() {
+		
+	}
+	
 	
 	protected void movePhase() {
 
 		this.turnCommands.entrySet().stream().forEach(e -> {
 			// if there is a command and the command is MOVE
-			if(e.getValue()[TCP.MOVE.gPN()] != null &&
-				COMMAND.valueOf(e.getValue()[TCP.MOVE.gPN()].underscoreCasedKeyWords) == COMMAND.MOVE) {
-				this.planet.moveRobot(e.getKey(), e.getValue()[TCP.MOVE.gPN()].argumentsArray[0]);
+			if(e.getValue()[3] != null &&
+				COMMAND.valueOf(e.getValue()[3].underscoreCasedKeyWords) == COMMAND.MOVE) {
+				this.planet.moveRobot(e.getKey(), e.getValue()[3].argumentsArray[0]);
 			}
 		});
+		
+	}
+	
+	
+	protected void enterMotherShipPhase() {
+		
+	}
+	
+	
+	protected void exitMotherShipPhase() {
+		
+	}
+	
+	
+	protected void launchPhase() {
 		
 	}
 	
@@ -473,9 +573,60 @@ public class ControlRobotTurnGameBoardAndCommands {
 	@GameStatusCommandAnnotation
 	public synchronized String turnCommit(PromptCommand command) throws CommandMethodArgumentException {
 
-		movePhase();
+		// play END_OF_TURN_COMMAND_CONFIG
+		for(int i = 0; i < END_OF_TURN_COMMAND_CONFIG.length; ++i) {
+			for(int j = 0; j < END_OF_TURN_COMMAND_CONFIG[i].length; ++j) {
+				// play phase
+				TP phase = END_OF_TURN_COMMAND_CONFIG[i][j];
+				switch(phase) {
+				case DROP_CARGO :
+					dropCargoPhase();
+					break;
+				case DROP_BATTERY :
+					dropBatteryPhase();
+					break;
+				case COLLECT_BATTERY :
+					collectBatteryPhase();
+					break;
+				case COLLECT_ROCKS :
+					collectRocksPhase();
+					break;
+				case MARKER_NEW :
+					markerNewPhase();
+					break;
+				case MARKER_OVERWRITE :
+					markerOverwritePhase();
+					break;
+				case CHARGE_ROVER :
+					chargeRoverPhase();
+					break;
+				case CHARGING_STATION :
+					chargingStationPhase();
+					break;
+				case DISTRIBUTE_ENERGY :
+					distributeEnergyPhase();
+					 break;
+				case LOAD_CARGO_TO_MOTHER_SHIP :
+					loadCargoToMotherShipPhase();
+					break;
+				case MOVE :
+					movePhase();
+					break;
+				case ENTER_MOTHER_SHIP :
+					enterMotherShipPhase();
+					break;
+				case EXIT_MOTHER_SHIP :
+					exitMotherShipPhase();
+					break;
+				case LAUNCH :
+					launchPhase();
+					break;
+				}
+			}
+		}
 		
 		return null;
+		
 	}
 
 }
