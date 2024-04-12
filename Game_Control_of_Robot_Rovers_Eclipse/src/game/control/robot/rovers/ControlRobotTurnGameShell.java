@@ -1,12 +1,11 @@
 package game.control.robot.rovers;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
+import game.control.robot.rovers.actions.CREATE_COMMAND;
+import game.control.robot.rovers.actions.END_OF_TURN_COMMAND;
+import game.control.robot.rovers.actions.MESSAGE_COMMAND;
+import game.control.robot.rovers.actions.STATUS_COMMAND;
+import game.control.robot.rovers.actions.TURN_COMMIT_COMMAND;
 import game.control.robot.rovers.board.*;
-import game.control.robot.rovers.command.GameCreateCommandAnnotation;
-import game.control.robot.rovers.command.GamePlayCommandAnnotation;
-import game.control.robot.rovers.command.GameStatusCommandAnnotation;
 import game.control.robot.rovers.command.PromptCommand;
 
 import java.io.FileInputStream;
@@ -22,23 +21,14 @@ public class ControlRobotTurnGameShell {
 
 	protected int currentRobot = 0;
 
-	protected class CommandMethodArgumentException extends Exception {
-
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
-	}
-
 	protected void validateNumberOfArguments(PromptCommand command, Integer numberOfArguments)
-			throws CommandMethodArgumentException {
+			throws IllegalArgumentException {
 		if (command.argumentsArray.length < numberOfArguments) {
-			throw new CommandMethodArgumentException();
+			throw new IllegalArgumentException();
 		}
 	}
 
-	public void saveBoard(PromptCommand command) throws CommandMethodArgumentException {
+	protected void saveBoard(PromptCommand command) throws IllegalArgumentException {
 
 		validateNumberOfArguments(command, 1);
 
@@ -59,7 +49,7 @@ public class ControlRobotTurnGameShell {
 
 	}
 
-	public void loadBoard(PromptCommand command) throws CommandMethodArgumentException {
+	protected void loadBoard(PromptCommand command) throws IllegalArgumentException {
 
 		validateNumberOfArguments(command, 1);
 
@@ -82,189 +72,92 @@ public class ControlRobotTurnGameShell {
 		}
 	}
 
-//	public void runCommand(PromptCommand command, PromptPrinterInterface printer) {
-//
-//		try {
-//
-//			switch (command.camelCasedKeyWords) {
-//
-//			case "robot": {
-//				validateNumberOfArguments(command, 1);
-//				this.currentRobot = Integer.valueOf(command.argumentsArray[0]);
-//				return;
-//			}
-//
-//			case "saveBoard": {
-//				this.saveBoard(command, printer);
-//				return;
-//			}
-//
-//			case "loadBoard": {
-//				this.loadBoard(command, printer);
-//				return;
-//			}
-//
-//			}
-//
-//			Method m;
-//
-//			try {
-//				m = this.game.getClass().getMethod(command.camelCasedKeyWords, PromptCommand.class);
-//			} catch (NoSuchMethodException e) {
-//				// TODO Auto-generated catch block
-//				// e.printStackTrace();
-//				m = null;
-//			}
-//			if (m != null && m.isAnnotationPresent(GameCreateCommandAnnotation.class)) {
-//
-//				m.invoke(this.game, command);
-//				return;
-//
-//			}
-//			if (m != null && m.isAnnotationPresent(GameStatusCommandAnnotation.class)) {
-//
-//				String response = (String) m.invoke(this.game, command);
-//				printer.println(response);
-//				return;
-//
-//			}
-//
-//			try {
-//				m = this.game.getClass().getMethod(command.camelCasedKeyWords, Integer.class, PromptCommand.class);
-//			} catch (NoSuchMethodException e) {
-//				// TODO Auto-generated catch block
-//				// e.printStackTrace();
-//				m = null;
-//			}
-//			if (m != null && m.isAnnotationPresent(GamePlayCommandAnnotation.class)) {
-//
-//				m.invoke(this.game, this.currentRobot, command);
-//				return;
-//
-//			}
-//			if (m != null && m.isAnnotationPresent(GameStatusCommandAnnotation.class)) {
-//
-//				String response = (String) m.invoke(this.game, this.currentRobot, command);
-//				printer.println(response);
-//				return;
-//
-//			}
-//
-//		} catch (SecurityException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IllegalAccessException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IllegalArgumentException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (InvocationTargetException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (CommandMethodArgumentException e) {
-//			if (e.getCause() != null) {
-//				printer.println(e.getCause().toString());
-//			}
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} finally {
-//
-//		}
-//
-//	}
-	
-	public String runCommandThrowsExceptions(String commandLine, int currentRobot) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		
-		PromptCommand command = new PromptCommand(commandLine);
-		
-		Method m = null;
+	protected String runCommand(String commandLine, int currentRobot) {
+
+		PromptCommand promptCommand = new PromptCommand(commandLine);
 
 		try {
-			m = this.game.getClass().getMethod(command.camelCasedKeyWords, PromptCommand.class);
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			return this.game.runMessageCommand(MESSAGE_COMMAND.valueOf(promptCommand.underscoreCasedKeyWords),
+					MESSAGE_COMMAND.MODE.PROMPT, promptCommand, currentRobot);
+
+		} catch (IllegalArgumentException e) {
+			//e.printStackTrace();
 		}
-		if (m != null && m.isAnnotationPresent(GameCreateCommandAnnotation.class)) {
-
-			m.invoke(this.game, command);
-			return null;
-
-		}
-		if (m != null && m.isAnnotationPresent(GameStatusCommandAnnotation.class)) {
-
-			return (String) m.invoke(this.game, command);
-
-		}
-
-		m = null;
 
 		try {
-			m = this.game.getClass().getMethod(command.camelCasedKeyWords, Integer.class, PromptCommand.class);
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+			this.game.runEndOfTurnCommand(END_OF_TURN_COMMAND.valueOf(promptCommand.underscoreCasedKeyWords), promptCommand,
+					currentRobot);
+
+		} catch (IllegalArgumentException e) {
+			//e.printStackTrace();
 		}
-		if (m != null && m.isAnnotationPresent(GamePlayCommandAnnotation.class)) {
 
-			m.invoke(this.game, this.currentRobot, command);
-			return null;
+		try {
 
+			return this.game.runStatusCommand(STATUS_COMMAND.valueOf(promptCommand.underscoreCasedKeyWords),
+					promptCommand);
+
+		} catch (IllegalArgumentException e) {
+			//e.printStackTrace();
 		}
-		if (m != null && m.isAnnotationPresent(GameStatusCommandAnnotation.class)) {
 
-			return (String) m.invoke(this.game, this.currentRobot, command);
+		try {
 
+			CREATE_COMMAND command = CREATE_COMMAND.valueOf(promptCommand.underscoreCasedKeyWords);
+			this.validateNumberOfArguments(promptCommand, command.numberOfArguments);
+			return this.game.runCreateCommand(command, promptCommand);
+
+		} catch (IllegalArgumentException e) {
+			//e.printStackTrace();
 		}
 		
+		try {
+
+			return this.game.runTurnCommitCommand(
+					TURN_COMMIT_COMMAND.valueOf(promptCommand.underscoreCasedKeyWords),
+					promptCommand);
+
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		}
+
 		return null;
 
 	}
-	
-	public String runCommand(String commandLine, int currentRobot) {
-		
-		try {
-			return this.runCommandThrowsExceptions(commandLine, currentRobot);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-		
-	}
-	
+
 	public String runCommand(String commandLine) {
 
 		PromptCommand command = new PromptCommand(commandLine);
 
 		try {
-		
-		switch (command.camelCasedKeyWords) {
 
-		case "robot": {
-			validateNumberOfArguments(command, 1);
-			this.currentRobot = Integer.valueOf(command.argumentsArray[0]);
-			return null;
-		}
+			switch (command.camelCasedKeyWords) {
 
-		case "saveBoard": {
-			this.saveBoard(command);
-			return null;
-		}
+			case "robot": {
+				validateNumberOfArguments(command, 1);
+				this.currentRobot = Integer.valueOf(command.argumentsArray[0]);
+				return null;
+			}
 
-		case "loadBoard": {
-			this.loadBoard(command);
-			return null;
-		}
+			case "saveBoard": {
+				this.saveBoard(command);
+				return null;
+			}
 
-		}
-		
-		} catch (CommandMethodArgumentException e) {
+			case "loadBoard": {
+				this.loadBoard(command);
+				return null;
+			}
+
+			}
+
+		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return this.runCommand(commandLine, this.currentRobot);
 
 	}

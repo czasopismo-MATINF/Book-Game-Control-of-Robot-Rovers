@@ -17,14 +17,10 @@ public class Robot implements Serializable {
 	private MaxLoadCargo cargo;
 	private Battery[] batteries;
 
-	public Robot(int maxLoad, int maxBatteries, BoardConfig boardConfig) {
+	public Robot(int maxLoad, Battery[] batteries) {
 		this.id = ++Robot.MAX_ROBOT_ID;
 		this.cargo = new MaxLoadCargo(maxLoad);
-		this.batteries = new Battery[maxBatteries];
-		for (int i = 0; i < this.batteries.length; ++i) {
-			this.batteries[i] = new Battery(boardConfig.getValue(BoardConfig.CONFIG_ENTRIES.BATTERY_CAPACITY),
-					boardConfig.getValue(BoardConfig.CONFIG_ENTRIES.BATTERY_WEIGHT));
-		}
+		this.batteries = batteries;
 	}
 
 	public MaxLoadCargo getCargo() {
@@ -55,7 +51,7 @@ public class Robot implements Serializable {
 	public int getId() {
 		return id;
 	}
-	
+
 	public int getTotalEnergy() {
 		return Arrays.asList(this.getBatteries()).stream().collect(Collectors.summingInt(b -> b.getEnergy()));
 	}

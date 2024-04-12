@@ -1,71 +1,30 @@
 package game.control.robot.rovers;
 
-import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import game.control.robot.rovers.actions.CREATE_COMMAND;
+import game.control.robot.rovers.actions.END_OF_TURN_COMMAND;
+import game.control.robot.rovers.actions.MESSAGE_COMMAND;
+import game.control.robot.rovers.actions.STATUS_COMMAND;
+import game.control.robot.rovers.actions.TURN_COMMIT_COMMAND;
+import game.control.robot.rovers.actions.TURN_PHASE;
 import game.control.robot.rovers.board.*;
-import game.control.robot.rovers.command.CommandMethodArgumentException;
-import game.control.robot.rovers.command.GameCreateCommandAnnotation;
-import game.control.robot.rovers.command.GamePlayCommandAnnotation;
-import game.control.robot.rovers.command.GameStatusCommandAnnotation;
 import game.control.robot.rovers.command.PromptCommand;
+import game.control.robot.rovers.config.BoardConfig;
+import game.control.robot.rovers.config.GameConfig;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ControlRobotTurnGameBoardAndCommands {
 
-	protected class ControlRobotTurnGameConfig implements BoardConfig {
-
-		public static int ROBOT_MAX_LOAD = 10;
-		public static int ROBOT_MAX_BATTERIES = 10;
-
-		public static int BATTERY_CAPACITY = 1000;
-		public static int BATTERY_WEIGHT = 1;
-
-		public static int CHARGING_STATION_ACCESS_POINTS = 4;
-
-		public static int MOTHER_SHIP_MAX_LOAD = 200;
-
-		public static int DEFAULT_PLANET_WIDTH = 10;
-		public static int DEFAULT_PLANET_HEIGHT = 10;
-
-		public static String MESSAGE_SEPARATOR = "\n";
-
-		public static int GPS_MESSAGE_ENERGY = 20;
-		public static int LOCAL_MESSAGE_ENERGY = 5;
-
-		@Override
-		public int getValue(CONFIG_ENTRIES entry) {
-
-			switch (entry) {
-			case ROBOT_MAX_LOAD:
-				return ControlRobotTurnGameConfig.ROBOT_MAX_LOAD;
-			case ROBOT_MAX_BATTERIES:
-				return ControlRobotTurnGameConfig.ROBOT_MAX_BATTERIES;
-			case BATTERY_CAPACITY:
-				return ControlRobotTurnGameConfig.BATTERY_CAPACITY;
-			case BATTERY_WEIGHT:
-				return ControlRobotTurnGameConfig.BATTERY_WEIGHT;
-			case CHARGING_STATION_ACCESS_POINTS:
-				return ControlRobotTurnGameConfig.CHARGING_STATION_ACCESS_POINTS;
-			case MOTHER_SHIP_MAX_LOAD:
-				return ControlRobotTurnGameConfig.MOTHER_SHIP_MAX_LOAD;
-			default:
-				return 0;
-			}
-
-		}
-
-	}
-	
-	protected BoardConfig config = new ControlRobotTurnGameConfig();
+	protected BoardConfig config = new GameConfig();
 
 	/********************/
-	
+
 	protected Planet planet = new Planet(
-			ControlRobotTurnGameBoardAndCommands.ControlRobotTurnGameConfig.DEFAULT_PLANET_WIDTH,
-			ControlRobotTurnGameBoardAndCommands.ControlRobotTurnGameConfig.DEFAULT_PLANET_HEIGHT);
+			config.getIntValue(BoardConfig.INT_CONFIG_ENTRY.DEFAULT_PLANET_WIDTH),
+			config.getIntValue(BoardConfig.INT_CONFIG_ENTRY.DEFAULT_PLANET_HEIGHT)
+			);
 
 	public Planet getPlanet() {
 		return this.planet;
@@ -74,559 +33,102 @@ public class ControlRobotTurnGameBoardAndCommands {
 	public void setPlanet(Planet planet) {
 		this.planet = planet;
 	}
-	
+
 	/********************/
-	
-	protected Map<Integer, PromptCommand[]> turnCommands = new ConcurrentHashMap<>();
-	
-	protected COMMAND[][] turnCommandConfig = {
-			{COMMAND.DROP_CARGO},
-			{COMMAND.DROP_BATTERY, COMMAND.COLLECT_BATTERY, COMMAND.COLLECT_ROCKS},
-			{COMMAND.MARKER_NEW, COMMAND.MARKER_OVERWRITE},
-			{COMMAND.CHARGE_ROVER, COMMAND.CHARGING_STATION, COMMAND.DISTRIBUTE_ENERGY, COMMAND.LOAD_CARGO_TO_MOTHER_SHIP, COMMAND.MOVE},
-			{COMMAND.ENTER_MOTHER_SHIP, COMMAND.EXIT_MOTHER_SHIP},
-			{COMMAND.LAUNCH}
-		};
-	
+
+	protected Map<Integer, PromptCommand[]> endOfTurnRobotCommands = new ConcurrentHashMap<>();
+
+	protected END_OF_TURN_COMMAND[][] END_OF_TURN_ROBOT_COMMANDS_CONFIG = { { END_OF_TURN_COMMAND.DROP_CARGO },
+			{ END_OF_TURN_COMMAND.DROP_BATTERY, END_OF_TURN_COMMAND.COLLECT_BATTERY, END_OF_TURN_COMMAND.COLLECT_ROCKS },
+			{ END_OF_TURN_COMMAND.MARKER_NEW, END_OF_TURN_COMMAND.MARKER_OVERWRITE },
+			{ END_OF_TURN_COMMAND.CHARGE_ROVER, END_OF_TURN_COMMAND.CHARGING_STATION, END_OF_TURN_COMMAND.DISTRIBUTE_ENERGY,
+					END_OF_TURN_COMMAND.LOAD_CARGO_TO_MOTHER_SHIP, END_OF_TURN_COMMAND.MOVE },
+			{ END_OF_TURN_COMMAND.ENTER_MOTHER_SHIP, END_OF_TURN_COMMAND.EXIT_MOTHER_SHIP }, { END_OF_TURN_COMMAND.LAUNCH } };
+
 	/********************/
-	
-	enum TP { //TURN PHASE
-		
-		DROP_CARGO,
-		DROP_BATTERY,
-		COLLECT_BATTERY,
-		COLLECT_ROCKS,
-		MARKER_NEW,
-		MARKER_OVERWRITE,
-		CHARGE_ROVER,
-		CHARGING_STATION,
-		DISTRIBUTE_ENERGY,
-		LOAD_CARGO_TO_MOTHER_SHIP,
-		MOVE,
-		ENTER_MOTHER_SHIP,
-		EXIT_MOTHER_SHIP,
-		LAUNCH;
-		
-	}
-	
-	protected TP[][] END_OF_TURN_COMMAND_CONFIG = {
-		{TP.DROP_CARGO},
-		{TP.DROP_BATTERY, TP.COLLECT_BATTERY, TP.COLLECT_ROCKS},
-		{TP.MARKER_NEW, TP.MARKER_OVERWRITE},
-		{TP.CHARGE_ROVER, TP.CHARGING_STATION, TP.DISTRIBUTE_ENERGY, TP.LOAD_CARGO_TO_MOTHER_SHIP, TP.MOVE},
-		{TP.EXIT_MOTHER_SHIP, TP.ENTER_MOTHER_SHIP},
-		{TP.LAUNCH}
-	};
-	
+
+	protected TURN_PHASE[][] END_OF_TURN_PHASE_CONFIG = { { TURN_PHASE.DROP_CARGO },
+			{ TURN_PHASE.DROP_BATTERY,
+					TURN_PHASE.COLLECT_BATTERY, TURN_PHASE.COLLECT_ROCKS },
+			{ TURN_PHASE.MARKER_NEW, TURN_PHASE.MARKER_OVERWRITE },
+			{ TURN_PHASE.CHARGE_ROVER, TURN_PHASE.CHARGING_STATION, TURN_PHASE.DISTRIBUTE_ENERGY,
+					TURN_PHASE.LOAD_CARGO_TO_MOTHER_SHIP, TURN_PHASE.MOVE },
+			{ TURN_PHASE.EXIT_MOTHER_SHIP, TURN_PHASE.ENTER_MOTHER_SHIP }, { TURN_PHASE.LAUNCH } };
+
 	/********************/
-	
+
 	protected void validateNumberOfArguments(PromptCommand command, Integer numberOfArguments)
-			throws CommandMethodArgumentException {
+			throws IllegalArgumentException {
 		if (command.argumentsArray.length < numberOfArguments) {
-			throw new CommandMethodArgumentException();
+			throw new IllegalArgumentException();
 		}
 	}
 
-	protected GPSCoordinates getCoords(PromptCommand command, Planet planet) {
-
-		Integer longitude = Integer.valueOf(command.argumentsArray[0]);
-		Integer latitude = Integer.valueOf(command.argumentsArray[1]);
-
-		GPSCoordinates gpsCoords = new GPSCoordinates(longitude, latitude, planet.getWidth(), planet.getHeight());
-
-		return gpsCoords;
-
-	}
-
-	/********************/
-	
-	@GameCreateCommandAnnotation
-	public void planet(PromptCommand command) throws CommandMethodArgumentException {
-
-		validateNumberOfArguments(command, 2);
-
-		Integer width = Integer.valueOf(command.argumentsArray[0]);
-		Integer height = Integer.valueOf(command.argumentsArray[1]);
-
-		if (width <= 0 || height <= 0) {
-			throw new CommandMethodArgumentException();
-		}
-
-		this.planet = new Planet(width, height);
-
-	}
-
-	@GameCreateCommandAnnotation
-	public void addMotherShip(PromptCommand command) throws CommandMethodArgumentException {
-
-		validateNumberOfArguments(command, 2);
-
-		GPSCoordinates gpsCoords = this.getCoords(command, planet);
-
-		MotherShip motherShip = planet.extractMotherShip();
-		if (motherShip == null)
-			motherShip = new MotherShip(ControlRobotTurnGameConfig.MOTHER_SHIP_MAX_LOAD);
-
-		planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].setMotherShip(motherShip);
-
-	}
-
-	@GameCreateCommandAnnotation
-	public void addRobot(PromptCommand command) throws CommandMethodArgumentException {
-		validateNumberOfArguments(command, 2);
-
-		GPSCoordinates gpsCoords = this.getCoords(command, planet);
-
-		planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getRobots()
-				.add(new Robot(ControlRobotTurnGameConfig.ROBOT_MAX_LOAD,
-						ControlRobotTurnGameConfig.ROBOT_MAX_BATTERIES, this.config));
-
-	}
-
-	@GameCreateCommandAnnotation
-	public void addRobots(PromptCommand command) throws CommandMethodArgumentException {
-
-		validateNumberOfArguments(command, 3);
-
-		GPSCoordinates gpsCoords = this.getCoords(command, planet);
-
-		for (int i = 0; i < Integer.valueOf(command.argumentsArray[2]); ++i) {
-			planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getRobots()
-					.add(new Robot(ControlRobotTurnGameConfig.ROBOT_MAX_LOAD,
-							ControlRobotTurnGameConfig.ROBOT_MAX_BATTERIES, this.config));
-		}
-
-	}
-
-	@GameCreateCommandAnnotation
-	public void addBattery(PromptCommand command) throws CommandMethodArgumentException {
-
-		validateNumberOfArguments(command, 2);
-
-		GPSCoordinates gpsCoords = this.getCoords(command, planet);
-
-		planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getBatteries().add(
-				new Battery(ControlRobotTurnGameConfig.BATTERY_CAPACITY, ControlRobotTurnGameConfig.BATTERY_WEIGHT));
-
-	}
-
-	@GameCreateCommandAnnotation
-	public void addChargingStation(PromptCommand command) throws CommandMethodArgumentException {
-
-		validateNumberOfArguments(command, 2);
-
-		GPSCoordinates gpsCoords = this.getCoords(command, planet);
-
-		planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getChargingStations()
-				.add(new ChargingStation(ControlRobotTurnGameConfig.CHARGING_STATION_ACCESS_POINTS));
-
-	}
-
-	@GameCreateCommandAnnotation
-	public void addRocks(PromptCommand command) throws CommandMethodArgumentException {
-
-		validateNumberOfArguments(command, 3);
-
-		GPSCoordinates gpsCoords = this.getCoords(command, planet);
-
-		Integer rockWeight = Integer.valueOf(command.argumentsArray[2]);
-
-		planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].addRocks(rockWeight);
-
-	}
-
-	@GameCreateCommandAnnotation
-	public void addChasm(PromptCommand command) throws CommandMethodArgumentException {
-
-		validateNumberOfArguments(command, 2);
-
-		GPSCoordinates gpsCoords = this.getCoords(command, planet);
-
-		planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].setChasm(true);
-
-	}
-
-	@GameCreateCommandAnnotation
-	public void addBlizzard(PromptCommand command) throws CommandMethodArgumentException {
-
-		validateNumberOfArguments(command, 3);
-
-		GPSCoordinates gpsCoords = this.getCoords(command, planet);
-
-		Integer volume = Integer.valueOf(command.argumentsArray[2]);
-
-		planet.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getBlizzards().add(new Blizzard(volume));
-
-	}
-
-	/********************/
-	
-	@GameStatusCommandAnnotation
-	public String sendGpsMessage(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-		return null;
-	}
-
-	@GameStatusCommandAnnotation
-	public String sendMessage(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-		return null;
-	}
-
-	@GameStatusCommandAnnotation
-	public String lookAround(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-		return null;
-	}
-
-	@GameStatusCommandAnnotation
-	public String checkSelf(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-
-		var robot = this.planet.getRobot(robotId);
-		if (robot == null)
-			return null;
-
-		var sBuilder = new StringBuilder();
-
-		sBuilder.append(String.format("cargo {load:%d}", robot.getCargo().load()));
-		Arrays.asList(robot.getBatteries()).stream().forEach(b -> {
-			sBuilder.append(ControlRobotTurnGameConfig.MESSAGE_SEPARATOR);
-			sBuilder.append(String.format("battery {energy:%d;capacity:%d;weigth:%d}", b.getEnergy(), b.getCapacity(),
-					b.getWeight()));
-		});
-
-		return sBuilder.toString();
-	}
-	
-	
-	@GameStatusCommandAnnotation
-	public String checkGPS(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-		return null;
-	}
-	
-	/********************/
-	
-	
 	/********************/
 
-	protected void addTurnCommand(Integer robotId, PromptCommand command) {
+	protected void addTurnCommand(Integer robotId, PromptCommand command) throws IllegalArgumentException {
 
-		for (int i = 0; i < this.turnCommandConfig.length; ++i) {
-			for (int j = 0; j < this.turnCommandConfig[i].length; ++j) {
-				if (this.turnCommandConfig[i][j].camelCasedName.equals(command.camelCasedKeyWords)) {
-					this.turnCommands.putIfAbsent(robotId, new PromptCommand[this.turnCommandConfig.length]);
-					this.turnCommands.getOrDefault(robotId,
-							new PromptCommand[this.turnCommandConfig.length])[i] = command;
+		this.validateNumberOfArguments(command,
+				END_OF_TURN_COMMAND.valueOf(command.underscoreCasedKeyWords).numberOfArguments);
+
+		for (int i = 0; i < this.END_OF_TURN_ROBOT_COMMANDS_CONFIG.length; ++i) {
+			for (int j = 0; j < this.END_OF_TURN_ROBOT_COMMANDS_CONFIG[i].length; ++j) {
+				if (this.END_OF_TURN_ROBOT_COMMANDS_CONFIG[i][j].camelCasedName.equals(command.camelCasedKeyWords)) {
+					this.endOfTurnRobotCommands.putIfAbsent(robotId,
+							new PromptCommand[this.END_OF_TURN_ROBOT_COMMANDS_CONFIG.length]);
+					this.endOfTurnRobotCommands.getOrDefault(robotId,
+							new PromptCommand[this.END_OF_TURN_ROBOT_COMMANDS_CONFIG.length])[i] = command;
 				}
 			}
 		}
 
 	}
-	
 
-
-	@GamePlayCommandAnnotation
-	public void dropCargo(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-
-		this.addTurnCommand(robotId, command);
-
-	}
-	
-	
-
-	@GamePlayCommandAnnotation
-	public void dropBattery(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-
-		validateNumberOfArguments(command, 1);
-		this.addTurnCommand(robotId, command);
-
-	}
-	
-	
-
-	@GamePlayCommandAnnotation
-	public void collectBattery(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-
-		validateNumberOfArguments(command, 3);
-		this.addTurnCommand(robotId, command);
-
-	}
-	
-	
-
-	@GamePlayCommandAnnotation
-	public void collectRocks(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-
-		validateNumberOfArguments(command, 1);
-		this.addTurnCommand(robotId, command);
-
-	}
-	
-	
-
-	@GamePlayCommandAnnotation
-	public void markerNew(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-
-		validateNumberOfArguments(command, 1);
-		this.addTurnCommand(robotId, command);
-
-	}
-	
-	
-
-	@GamePlayCommandAnnotation
-	public void markerOverwrite(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-
-		validateNumberOfArguments(command, 2);
-		this.addTurnCommand(robotId, command);
-
-	}
-	
-	
-
-	@GamePlayCommandAnnotation
-	public void chargeRover(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-
-		validateNumberOfArguments(command, 3);
-		this.addTurnCommand(robotId, command);
-
-	}
-	
-	
-
-	@GamePlayCommandAnnotation
-	public void chargingStation(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-
-		this.addTurnCommand(robotId, command);
-
-	}
-	
-	
-
-	@GamePlayCommandAnnotation
-	public void distributeEnergy(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-
-		this.addTurnCommand(robotId, command);
-
-	}
-	
-	
-
-	@GamePlayCommandAnnotation
-	public void loadCargoToMotherShip(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-
-		this.addTurnCommand(robotId, command);
-
-	}
-	
-	
-
-	@GamePlayCommandAnnotation
-	public void move(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-		validateNumberOfArguments(command, 1);
-		this.addTurnCommand(robotId, command);
-
-	}
-	
-	
-
-	@GamePlayCommandAnnotation
-	public void enterMotherShip(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-
-		this.addTurnCommand(robotId, command);
-
-	}
-	
-	
-
-	@GamePlayCommandAnnotation
-	public void exitMotherShip(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-
-		this.addTurnCommand(robotId, command);
-
-	}
-	
-	
-
-	@GamePlayCommandAnnotation
-	public void launch(Integer robotId, PromptCommand command) throws CommandMethodArgumentException {
-
-		this.addTurnCommand(robotId, command);
-
-	}
-	
-	/********************/
-	
-	
 	/********************/
 
-	protected String buildRobotCommandStatus(int robotId) {
+	public String runMessageCommand(MESSAGE_COMMAND command, MESSAGE_COMMAND.MODE mode,
+			PromptCommand promptCommand, int currentRobot) {
 
-		StringBuilder sBuilder = new StringBuilder();
-		sBuilder.append(String.valueOf(robotId)).append(":");
-		for (int i = 0; i < this.turnCommandConfig.length; ++i) {
-			PromptCommand c = this.turnCommands.get(robotId)[i];
-			if (c != null) {
-				sBuilder.append(c.command);
-			} else {
-				sBuilder.append("...");
-			}
-			if (i + 1 < this.turnCommandConfig.length) {
-				sBuilder.append(" > ");
-			}
+		Map.Entry<Planet, Integer> e1 = Map.entry(this.getPlanet(), currentRobot);
+		Map.Entry<PromptCommand, MESSAGE_COMMAND.MODE> e2 = Map.entry(promptCommand, mode);
+		return command.action.apply(e1, e2);
+
+	}
+	
+	public void runEndOfTurnCommand(END_OF_TURN_COMMAND command,
+			PromptCommand promptCommand, int currentRobot) {
+		
+		try {
+			this.addTurnCommand(currentRobot, promptCommand);
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
 		}
-		return sBuilder.toString();
 
 	}
 	
-	
-
-	@GameStatusCommandAnnotation
-	public String turnStatus(PromptCommand command) throws CommandMethodArgumentException {
-
-		return this.turnCommands.entrySet().stream().map(e -> this.buildRobotCommandStatus(e.getKey()))
-				.collect(Collectors.joining("\n"));
-
-	}
-	
-	/********************/
-	
-	
-	/********************/	
-
-	
-	protected void dropCargoPhase() {
+	public String runStatusCommand(STATUS_COMMAND command, PromptCommand promptCommand) {
+		
+		Map.Entry<Planet, PromptCommand> e1 = Map.entry(this.getPlanet(), promptCommand);
+		Map.Entry<END_OF_TURN_COMMAND[][], Map<Integer, PromptCommand[]>> e2 = Map.entry(this.END_OF_TURN_ROBOT_COMMANDS_CONFIG, this.endOfTurnRobotCommands);
+		return command.action.apply(e1, e2);
 		
 	}
 	
-	
-	protected void dropBatteryPhase() {
+	public String runCreateCommand(CREATE_COMMAND command, PromptCommand promptCommand) {
 		
-	}
-	
-	
-	protected void collectBatteryPhase() {
-		
-	}
-	
-	
-	protected void collectRocksPhase() {
-		
-	}
-	
-	
-	protected void markerNewPhase() {
-		
-	}
-	
-	
-	protected void markerOverwritePhase() {
-		
-	}
-	
-	
-	protected void chargeRoverPhase() {
-		
-	}
-	
-	
-	protected void chargingStationPhase() {
-		
-	}
-	
-	
-	protected void distributeEnergyPhase() {
-		
-	}
-	
-	
-	protected void loadCargoToMotherShipPhase() {
-		
-	}
-	
-	
-	protected void movePhase() {
-
-		this.turnCommands.entrySet().stream().forEach(e -> {
-			// if there is a command and the command is MOVE
-			if(e.getValue()[3] != null &&
-				COMMAND.valueOf(e.getValue()[3].underscoreCasedKeyWords) == COMMAND.MOVE) {
-				this.planet.moveRobot(e.getKey(), e.getValue()[3].argumentsArray[0]);
-			}
-		});
-		
-	}
-	
-	
-	protected void enterMotherShipPhase() {
-		
-	}
-	
-	
-	protected void exitMotherShipPhase() {
-		
-	}
-	
-	
-	protected void launchPhase() {
-		
-	}
-	
-	
-	@GameStatusCommandAnnotation
-	public synchronized String turnCommit(PromptCommand command) throws CommandMethodArgumentException {
-
-		// play END_OF_TURN_COMMAND_CONFIG
-		for(int i = 0; i < END_OF_TURN_COMMAND_CONFIG.length; ++i) {
-			for(int j = 0; j < END_OF_TURN_COMMAND_CONFIG[i].length; ++j) {
-				// play phase
-				TP phase = END_OF_TURN_COMMAND_CONFIG[i][j];
-				switch(phase) {
-				case DROP_CARGO :
-					dropCargoPhase();
-					break;
-				case DROP_BATTERY :
-					dropBatteryPhase();
-					break;
-				case COLLECT_BATTERY :
-					collectBatteryPhase();
-					break;
-				case COLLECT_ROCKS :
-					collectRocksPhase();
-					break;
-				case MARKER_NEW :
-					markerNewPhase();
-					break;
-				case MARKER_OVERWRITE :
-					markerOverwritePhase();
-					break;
-				case CHARGE_ROVER :
-					chargeRoverPhase();
-					break;
-				case CHARGING_STATION :
-					chargingStationPhase();
-					break;
-				case DISTRIBUTE_ENERGY :
-					distributeEnergyPhase();
-					 break;
-				case LOAD_CARGO_TO_MOTHER_SHIP :
-					loadCargoToMotherShipPhase();
-					break;
-				case MOVE :
-					movePhase();
-					break;
-				case ENTER_MOTHER_SHIP :
-					enterMotherShipPhase();
-					break;
-				case EXIT_MOTHER_SHIP :
-					exitMotherShipPhase();
-					break;
-				case LAUNCH :
-					launchPhase();
-					break;
-				}
-			}
-		}
-		
+		command.action.apply(this.planet, promptCommand);
 		return null;
 		
 	}
+	
+	public String runTurnCommitCommand(TURN_COMMIT_COMMAND command, PromptCommand promptCommand) {
+		
+		Map.Entry<TURN_PHASE[][], Map<Integer, PromptCommand[]>> e2 = Map.entry(this.END_OF_TURN_PHASE_CONFIG, this.endOfTurnRobotCommands);
+		return command.action.apply(this.getPlanet(), e2);
+		
+	}
+	
+	/********************/
 
 }

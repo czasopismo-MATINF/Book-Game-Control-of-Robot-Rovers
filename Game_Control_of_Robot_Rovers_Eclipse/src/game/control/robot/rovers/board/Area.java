@@ -59,6 +59,10 @@ public class Area implements Serializable {
 		return rocks;
 	}
 
+	public void setRocks(int rocks) {
+		this.rocks = rocks;
+	}
+
 	public boolean hasChasm() {
 		return hasChasm;
 	}
@@ -75,16 +79,8 @@ public class Area implements Serializable {
 		this.motherShip = motherShip;
 	}
 
-	public void addBattery(Battery battery) {
-		this.batteries.add(battery);
-	}
-
-	public void addBatteries(List<Battery> batteries) {
-		this.batteries.addAll(batteries);
-	}
-
 	public void addBatteriesAndRocks(List<Battery> batteries, Integer rocks) {
-		this.addBatteries(batteries);
+		this.batteries.addAll(batteries);
 		this.addRocks(rocks);
 	}
 

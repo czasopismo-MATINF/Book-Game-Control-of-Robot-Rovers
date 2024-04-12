@@ -11,14 +11,13 @@ public class Main {
 	ControlRobotTurnGameShell gameShell = new ControlRobotTurnGameShell();
 
 	public void run() {
-		
+
 		try (Scanner scanner = new Scanner(System.in)) {
-			
+
 			for (;;) {
-				
+
 				this.promptPrinter.print(PromptPrinterInterface.COMMAND_LINE_PROMPT);
 				String commandLine = scanner.nextLine();
-				
 
 				if ("exit".equals(commandLine)) {
 					this.promptPrinter.println("EXIT");
@@ -26,13 +25,13 @@ public class Main {
 				}
 
 				String response = this.gameShell.runCommand(commandLine);
-				if(response != null) {
+				if (response != null) {
 					promptPrinter.println(response);
 				}
-				
+
 			}
 		}
-		
+
 	}
 
 	public static void main(String[] args) {

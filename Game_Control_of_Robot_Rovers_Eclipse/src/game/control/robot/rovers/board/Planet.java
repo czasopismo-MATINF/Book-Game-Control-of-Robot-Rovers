@@ -17,8 +17,7 @@ public class Planet implements Serializable {
 
 	protected Area[][] surface;
 
-	public Planet(int width, int height) {
-		super();
+	public void resetPlanet(int width, int height) {
 		this.width = width;
 		this.height = height;
 		this.surface = new Area[this.width][this.height];
@@ -27,6 +26,11 @@ public class Planet implements Serializable {
 				this.surface[i][j] = new Area();
 			}
 		}
+	}
+
+	public Planet(int width, int height) {
+		super();
+		this.resetPlanet(width, height);
 	}
 
 	public int getWidth() {
@@ -53,7 +57,7 @@ public class Planet implements Serializable {
 		}
 		return null;
 	}
-	
+
 	public MotherShip getMotherShip() {
 		for (int i = 0; i < this.width; ++i) {
 			for (int j = 0; j < this.height; ++j) {
@@ -65,12 +69,12 @@ public class Planet implements Serializable {
 		}
 		return null;
 	}
-	
+
 	public Robot getRobot(int robotId) {
 		for (var i = 0; i < this.width; ++i) {
 			for (var j = 0; j < this.height; ++j) {
-				for(var r : this.surface[i][j].getRobots()) {
-					if( r.getId() == robotId ) {
+				for (var r : this.surface[i][j].getRobots()) {
+					if (r.getId() == robotId) {
 						return r;
 					}
 				}
@@ -78,7 +82,7 @@ public class Planet implements Serializable {
 		}
 		return null;
 	}
-	
+
 	public List<Robot> getRobots() {
 		List<Robot> robots = new ArrayList<>();
 		for (var i = 0; i < this.width; ++i) {
@@ -92,16 +96,16 @@ public class Planet implements Serializable {
 	public GPSCoordinates robotGPSCoordinates(int robotId) {
 		for (var i = 0; i < this.width; ++i) {
 			for (var j = 0; j < this.height; ++j) {
-				for(var r : this.surface[i][j].getRobots()) {
-					if( r.getId() == robotId ) {
-						return new GPSCoordinates(i,j,this.width,this.height,GPSCoordinates.Mode.XYMODE);
+				for (var r : this.surface[i][j].getRobots()) {
+					if (r.getId() == robotId) {
+						return new GPSCoordinates(i, j, this.width, this.height, GPSCoordinates.Mode.XYMODE);
 					}
 				}
 			}
 		}
 		return null;
 	}
-	
+
 	public void moveRobot(int robotId, String direction) {
 
 		Robot robot;
@@ -111,32 +115,36 @@ public class Planet implements Serializable {
 			return;
 		}
 		GPSCoordinates gpsCoords = this.robotGPSCoordinates(robot.getId());
-		
-		switch(direction) {
-		
-			case "N", "n" : {
-				if(gpsCoords.getN() != null) {
-					this.surface[gpsCoords.getX()][gpsCoords.getY()].getRobots().remove(robot);
-					this.surface[gpsCoords.getN().getX()][gpsCoords.getN().getY()].getRobots().add(robot);
-				}
-			} return;
-			case "E","e" : {
+
+		switch (direction) {
+
+		case "N", "n": {
+			if (gpsCoords.getN() != null) {
 				this.surface[gpsCoords.getX()][gpsCoords.getY()].getRobots().remove(robot);
-				this.surface[gpsCoords.getE().getX()][gpsCoords.getE().getY()].getRobots().add(robot);
-			} return;			
-			case "S", "s" : {
-				if(gpsCoords.getS() != null) {
-					this.surface[gpsCoords.getX()][gpsCoords.getY()].getRobots().remove(robot);
-					this.surface[gpsCoords.getS().getX()][gpsCoords.getS().getY()].getRobots().add(robot);
-				}
-			} return;
-			case "W","w" : {
-				this.surface[gpsCoords.getX()][gpsCoords.getY()].getRobots().remove(robot);
-				this.surface[gpsCoords.getW().getX()][gpsCoords.getW().getY()].getRobots().add(robot);
-			} return;
-			
+				this.surface[gpsCoords.getN().getX()][gpsCoords.getN().getY()].getRobots().add(robot);
+			}
 		}
-		
+			return;
+		case "E", "e": {
+			this.surface[gpsCoords.getX()][gpsCoords.getY()].getRobots().remove(robot);
+			this.surface[gpsCoords.getE().getX()][gpsCoords.getE().getY()].getRobots().add(robot);
+		}
+			return;
+		case "S", "s": {
+			if (gpsCoords.getS() != null) {
+				this.surface[gpsCoords.getX()][gpsCoords.getY()].getRobots().remove(robot);
+				this.surface[gpsCoords.getS().getX()][gpsCoords.getS().getY()].getRobots().add(robot);
+			}
+		}
+			return;
+		case "W", "w": {
+			this.surface[gpsCoords.getX()][gpsCoords.getY()].getRobots().remove(robot);
+			this.surface[gpsCoords.getW().getX()][gpsCoords.getW().getY()].getRobots().add(robot);
+		}
+			return;
+
+		}
+
 	}
 
 }
