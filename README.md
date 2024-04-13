@@ -1,6 +1,6 @@
-# Książka-gra: W sterowanie rojem robotów.
+# Książka-gra: W sterowanie grupą robotów-łazików.
 
-Książka opisująca proces tworzenia gry turowej w sterowanie rojem robotów-łazików na obcej planecie.
+Książka opisująca proces tworzenia gry turowej w sterowanie grupą robotów-łazików na obcej planecie.
 
 # Book-game: Control of Robot Rovers.
 
