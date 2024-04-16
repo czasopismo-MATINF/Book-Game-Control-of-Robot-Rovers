@@ -2,6 +2,8 @@ package game.control.robot.rovers.board;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class Robot implements Serializable {
@@ -23,6 +25,10 @@ public class Robot implements Serializable {
 		this.batteries = batteries;
 	}
 
+	public int getId() {
+		return id;
+	}
+	
 	public MaxLoadCargo getCargo() {
 		return cargo;
 	}
@@ -47,13 +53,34 @@ public class Robot implements Serializable {
 		}
 		return null;
 	}
-
-	public int getId() {
-		return id;
+	
+	public List<Battery> getChargedBatteries() {
+		return Arrays.asList(this.getBatteries()).stream().filter(b -> b.getEnergy() > 0).collect(Collectors.toList());
 	}
 
 	public int getTotalEnergy() {
 		return Arrays.asList(this.getBatteries()).stream().collect(Collectors.summingInt(b -> b.getEnergy()));
+	}
+	
+	public int drainEnergy(int energy) {
+		
+		int total = 0;
+		for(int i = 0; i < energy; ++i) {
+			List<Battery> chargedBatteries = this.getChargedBatteries();
+			if(chargedBatteries.size() == 0) {
+				return total;
+			}
+			Collections.shuffle(chargedBatteries);
+			chargedBatteries.get(0).drain(1);
+			total += 1;
+		}
+		
+		return total;
+		
+	}
+	
+	public boolean hasEnoughEnergy(int energy) {
+		return this.getTotalEnergy() >= energy;
 	}
 
 }

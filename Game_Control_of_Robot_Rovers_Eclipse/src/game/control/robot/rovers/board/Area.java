@@ -18,7 +18,7 @@ public class Area implements Serializable {
 	private List<ChargingStation> chargingStations;
 
 	private int rocks = 0;
-	private boolean hasChasm;
+	private boolean hasChasm = false;
 
 	private MotherShip motherShip;
 

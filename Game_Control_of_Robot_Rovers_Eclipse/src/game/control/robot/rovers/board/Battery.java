@@ -40,7 +40,7 @@ public class Battery implements Serializable {
 		return weight;
 	}
 
-	private int charge(int energy) {
+	public int charge(int energy) {
 		if (this.energy + energy <= this.capacity) {
 			this.energy += energy;
 			return energy;
@@ -51,8 +51,8 @@ public class Battery implements Serializable {
 		}
 	}
 
-	private int drain(int energy) {
-		if (this.energy <= energy) {
+	public int drain(int energy) {
+		if (this.energy >= energy) {
 			this.energy -= energy;
 			return energy;
 		} else {

@@ -83,7 +83,7 @@ public class Planet implements Serializable {
 		return null;
 	}
 
-	public List<Robot> getRobots() {
+	public List<Robot> getAllRobots() {
 		List<Robot> robots = new ArrayList<>();
 		for (var i = 0; i < this.width; ++i) {
 			for (var j = 0; j < this.height; ++j) {
@@ -91,6 +91,18 @@ public class Planet implements Serializable {
 			}
 		}
 		return robots;
+	}
+	
+	public List<Area> getAllAreas() {
+		
+		List<Area> areas = new ArrayList<>();
+		for(int i = 0; i < this.getWidth(); ++i) {
+			for(int j = 0; j < this.getHeight(); ++j) {
+				areas.add(this.getSurface()[i][j]);
+			}
+		}
+		return areas;
+		
 	}
 
 	public GPSCoordinates robotGPSCoordinates(int robotId) {
@@ -110,7 +122,7 @@ public class Planet implements Serializable {
 
 		Robot robot;
 		try {
-			robot = this.getRobots().stream().filter(r -> r.getId() == robotId).findAny().get();
+			robot = this.getAllRobots().stream().filter(r -> r.getId() == robotId).findAny().get();
 		} catch (NoSuchElementException e) {
 			return;
 		}

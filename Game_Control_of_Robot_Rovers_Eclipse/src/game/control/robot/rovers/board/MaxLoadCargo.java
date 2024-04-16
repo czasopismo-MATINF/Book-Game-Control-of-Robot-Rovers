@@ -27,7 +27,7 @@ public class MaxLoadCargo implements Serializable {
 	}
 
 	public boolean addBattery(Battery battery) {
-		if (this.load() + battery.getWeight() < this.maxLoad) {
+		if (this.load() + battery.getWeight() <= this.maxLoad) {
 			this.batteriesInCargo.add(battery);
 			return true;
 		} else {
@@ -35,8 +35,8 @@ public class MaxLoadCargo implements Serializable {
 		}
 	}
 
-	public int addRock(int rocks) {
-		if (this.load() + rocks < this.maxLoad) {
+	public int addRocks(int rocks) {
+		if (this.load() + rocks <= this.maxLoad) {
 			this.rocks += rocks;
 			return rocks;
 		} else {
@@ -57,6 +57,15 @@ public class MaxLoadCargo implements Serializable {
 	public void releaseCargo() {
 		this.batteriesInCargo = new ArrayList<>();
 		this.rocks = 0;
+	}
+
+	public boolean isFull() {
+
+		if (this.load() >= this.maxLoad) {
+			return true;
+		}
+		return false;
+
 	}
 
 }

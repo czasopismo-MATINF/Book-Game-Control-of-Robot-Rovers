@@ -30,7 +30,7 @@ public class ControlRobotTurnGameConcurrentShell implements Callable<Boolean> {
 	public ControlRobotTurnGameConcurrentShell(ControlRobotTurnGameBoardAndCommands game) {
 
 		this.game = game;
-		this.game.getPlanet().getRobots().stream().forEach(r -> {
+		this.game.getPlanet().getAllRobots().stream().forEach(r -> {
 			robotAIs.put(r.getId(), new ControlRobotsTurnGameRobotAI(this));
 		});
 
@@ -97,7 +97,7 @@ public class ControlRobotTurnGameConcurrentShell implements Callable<Boolean> {
 			}
 
 			// if all robots run out of energy, return false
-			if (this.game.getPlanet().getRobots().stream()
+			if (this.game.getPlanet().getAllRobots().stream()
 					.collect(Collectors.summingInt(r -> r.getTotalEnergy())) == 0) {
 				return false;
 			}
