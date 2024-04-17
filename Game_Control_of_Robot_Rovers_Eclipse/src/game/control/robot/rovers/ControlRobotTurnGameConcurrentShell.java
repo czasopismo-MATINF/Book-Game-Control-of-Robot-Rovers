@@ -57,7 +57,7 @@ public class ControlRobotTurnGameConcurrentShell implements Callable<Boolean> {
 					MESSAGE_COMMAND.MODE.CONCURRENT, promptCommand, currentRobot);
 
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 
 		try {
@@ -67,7 +67,7 @@ public class ControlRobotTurnGameConcurrentShell implements Callable<Boolean> {
 			return null;
 
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 
 		return null;

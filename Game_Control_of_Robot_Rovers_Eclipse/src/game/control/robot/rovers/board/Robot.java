@@ -46,7 +46,7 @@ public class Robot implements Serializable {
 	}
 
 	public Battery removeBattery(int slot) {
-		if (slot < this.batteries.length && this.batteries[slot] != null) {
+		if (slot >= 0 && slot < this.batteries.length && this.batteries[slot] != null) {
 			Battery b = this.batteries[slot];
 			this.batteries[slot] = null;
 			return b;
@@ -55,11 +55,11 @@ public class Robot implements Serializable {
 	}
 	
 	public List<Battery> getChargedBatteries() {
-		return Arrays.asList(this.getBatteries()).stream().filter(b -> b.getEnergy() > 0).collect(Collectors.toList());
+		return Arrays.asList(this.getBatteries()).stream().filter(b -> b != null && b.getEnergy() > 0).collect(Collectors.toList());
 	}
 
 	public int getTotalEnergy() {
-		return Arrays.asList(this.getBatteries()).stream().collect(Collectors.summingInt(b -> b.getEnergy()));
+		return this.getChargedBatteries().stream().collect(Collectors.summingInt(b -> b.getEnergy()));
 	}
 	
 	public int drainEnergy(int energy) {

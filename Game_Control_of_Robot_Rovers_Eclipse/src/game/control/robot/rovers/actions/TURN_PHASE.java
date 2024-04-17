@@ -127,7 +127,7 @@ public enum TURN_PHASE {
 	DROP_CARGO((planet, commands) -> {
 
 		new RobotPromptCommandMap(planet.getAllRobots(), commands, 0, END_OF_TURN_COMMAND.DROP_CARGO).forEach(planet,
-				(robot, command, p, area, coords) -> {
+				(robot, promptCommand, p, area, coords) -> {
 
 					int energyCost = ENERGY_COST_CALCULATOR.CONST
 							.calculate(BoardConfig.INT_CONFIG_ENTRY.DROP_CARGO_ENERGY);
@@ -158,10 +158,28 @@ public enum TURN_PHASE {
 		return true;
 	}), DROP_BATTERY((planet, commands) -> {
 
-//		new RobotPromptCommandMap(planet.getAllRobots(), commands, 1, END_OF_TURN_COMMAND.DROP_BATTERY)
-//		.forEach(planet, (robot, command, p, area, coords) -> {
-//			
-//		});
+		new RobotPromptCommandMap(planet.getAllRobots(), commands, 1, END_OF_TURN_COMMAND.DROP_BATTERY).forEach(planet,
+				(robot, promptCommand, p, area, coords) -> {
+
+					int energyCost = ENERGY_COST_CALCULATOR.CONST
+							.calculate(BoardConfig.INT_CONFIG_ENTRY.DROP_BATTERY_ENERGY);
+
+					if (energyCost <= robot.getTotalEnergy()) {
+
+						int slot = Integer.valueOf(promptCommand.argumentsArray[0]);
+
+						if (slot >= 0 && slot < robot.getBatteries().length && robot.getBatteries()[slot] != null) {
+
+							robot.drainEnergy(energyCost);
+
+							Battery battery = robot.removeBattery(slot);
+							area.getBatteries().add(battery);
+
+						}
+
+					}
+
+				});
 		/*
 		 * planet.getAllAreas().stream().forEach(a -> {
 		 * 

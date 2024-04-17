@@ -149,8 +149,7 @@ void keyPressed() {
   }
   
 }
-//String filePath =  "planet ... file ... path";
-String filePath = "C:\\Users\\mikol\\git\\Book-Game-Control-of-Robot-Rovers\\Game_Control_of_Robot_Rovers_Eclipse\\board.in";
+String filePath =  "planet ... file ... path";
 
 /*
 void setup() {
@@ -190,6 +189,8 @@ Future<Boolean> gameResult;
 void printFinishScreen() {
   
   //background(0,0,0);
+  textSize(128);
+  text("The End", 40, 120);
   
 }
 
