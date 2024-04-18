@@ -150,6 +150,16 @@ public class ControlRobotTurnGameShell {
 				this.loadBoard(command);
 				return null;
 			}
+			
+			case "s": {
+				this.saveBoard(new PromptCommand("save board : board.in"));
+				return null;
+			}
+			
+			case "l": {
+				this.loadBoard(new PromptCommand("load board : board.in"));
+				return null;
+			}
 
 			}
 
