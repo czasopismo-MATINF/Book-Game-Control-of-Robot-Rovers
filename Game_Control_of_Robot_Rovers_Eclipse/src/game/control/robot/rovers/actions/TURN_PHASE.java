@@ -1,6 +1,7 @@
 package game.control.robot.rovers.actions;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -208,94 +209,121 @@ public enum TURN_PHASE {
 		return true;
 	}), COLLECT_BATTERY((planet, commands) -> {
 
-		new RobotPromptCommandMap(planet.getAllRobots(), commands, 1, END_OF_TURN_COMMAND.COLLECT_BATTERY)
-				.forEach(planet, (robot, promptCommand, p, area, coords) -> {
+		planet.getAllAreas().forEach(area -> {
 
-					if ("SLOT".equals(promptCommand.argumentsArray[2].toUpperCase())) {
+			Map<Robot, Battery> robotCollectsBattery = new HashMap<>();
 
-						int freeSlot = robot.getFreeSlot();
-						if (freeSlot < 0) {
-							return;
+			new RobotPromptCommandMap(area.getRobots(), commands, 1, END_OF_TURN_COMMAND.COLLECT_BATTERY)
+					.filter(cmd -> {
+						return Integer.valueOf(cmd.argumentsArray[0]) >= 0
+								&& Integer.valueOf(cmd.argumentsArray[0]) < area.getBatteries().size();
+					}).forEach(planet, (robot, promptCommand, p, a, coord) -> {
+						Integer batteryNumber = Integer.valueOf(promptCommand.argumentsArray[0]);
+						robotCollectsBattery.put(robot, area.getBatteries().get(batteryNumber));
+					});
+
+			List<Robot> areaRobots = area.getRobots();
+			Collections.shuffle(areaRobots);
+
+			new RobotPromptCommandMap(areaRobots, commands, 1, END_OF_TURN_COMMAND.COLLECT_BATTERY).forEach(planet,
+					(robot, promptCommand, p, a, coords) -> {
+
+						if ("SLOT".equals(promptCommand.argumentsArray[2].toUpperCase())) {
+
+							int freeSlot = robot.getFreeSlot();
+							if (freeSlot < 0) {
+								return;
+							}
+
+							int batteryNumber = Integer.valueOf(promptCommand.argumentsArray[0]);
+							if (batteryNumber < 0) {
+								return;
+							}
+
+							int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
+									BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
+									BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(),
+									robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+							int drained = robot.drainEnergy(energy);
+							if (drained < energy) {
+								return;
+							}
+
+							if (batteryNumber >= a.getBatteries().size()) {
+								return;
+							}
+
+							// Battery battery = area.getBatteries().get(batteryNumber);
+							Battery battery = robotCollectsBattery.get(robot);
+							if (battery == null) {
+								return;
+							}
+
+							energy = ENERGY_COST_CALCULATOR.CONST_WEIGHT.calculate(
+									BoardConfig.INT_CONFIG_ENTRY.COLLECT_BATTERY_CONST_ENERGY, a.getBlizzards(),
+									battery.getWeight(),
+									BoardConfig.INT_CONFIG_ENTRY.COLLECT_BATTERY_WEIGHT_MULTIPLIER);
+							if (energy > robot.getTotalEnergy()) {
+								return;
+							}
+							robot.drainEnergy(energy);
+
+							if (WeatherEffects.preventedBy(a.getBlizzards())) {
+								return;
+							}
+
+							a.getBatteries().remove(battery);
+							robot.insertBattery(battery, freeSlot);
+
+						} else if ("CARGO".equals(promptCommand.argumentsArray[2].toUpperCase())) {
+
+							int batteryNumber = Integer.valueOf(promptCommand.argumentsArray[0]);
+							if (batteryNumber < 0) {
+								return;
+							}
+
+							int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
+									BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
+									BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(),
+									robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+							int drained = robot.drainEnergy(energy);
+							if (drained < energy) {
+								return;
+							}
+
+							if (batteryNumber >= a.getBatteries().size()) {
+								return;
+							}
+
+							// Battery battery = area.getBatteries().get(batteryNumber);
+							Battery battery = robotCollectsBattery.get(robot);
+							if (battery == null) {
+								return;
+							}
+
+							if (battery.getWeight() + robot.getCargo().load() > robot.getCargo().getMaxLoad()) {
+								return;
+							}
+
+							energy = ENERGY_COST_CALCULATOR.CONST_WEIGHT.calculate(
+									BoardConfig.INT_CONFIG_ENTRY.COLLECT_BATTERY_CONST_ENERGY, area.getBlizzards(),
+									battery.getWeight(),
+									BoardConfig.INT_CONFIG_ENTRY.COLLECT_BATTERY_WEIGHT_MULTIPLIER);
+							if (energy > robot.getTotalEnergy()) {
+								return;
+							}
+							robot.drainEnergy(energy);
+
+							if (WeatherEffects.preventedBy(a.getBlizzards())) {
+								return;
+							}
+
+							a.getBatteries().remove(battery);
+							robot.getCargo().addBattery(battery);
+
 						}
-
-						int batteryNumber = Integer.valueOf(promptCommand.argumentsArray[0]);
-						if (batteryNumber < 0) {
-							return;
-						}
-
-						int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
-								BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
-								BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, area.getBlizzards(),
-								robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
-						int drained = robot.drainEnergy(energy);
-						if (drained < energy) {
-							return;
-						}
-						
-						if(batteryNumber >= area.getBatteries().size()) {
-							return;
-						}
-
-						Battery battery = area.getBatteries().get(batteryNumber);
-
-						energy = ENERGY_COST_CALCULATOR.CONST_WEIGHT.calculate(
-								BoardConfig.INT_CONFIG_ENTRY.COLLECT_BATTERY_CONST_ENERGY, area.getBlizzards(),
-								battery.getWeight(), BoardConfig.INT_CONFIG_ENTRY.COLLECT_BATTERY_WEIGHT_MULTIPLIER);
-						if (energy > robot.getTotalEnergy()) {
-							return;
-						}
-						robot.drainEnergy(energy);
-
-						if (WeatherEffects.preventedBy(area.getBlizzards())) {
-							return;
-						}
-
-						area.getBatteries().remove(battery);
-						robot.insertBattery(battery, freeSlot);
-
-					} else if ("CARGO".equals(promptCommand.argumentsArray[2].toUpperCase())) {
-
-						int batteryNumber = Integer.valueOf(promptCommand.argumentsArray[0]);
-						if (batteryNumber < 0) {
-							return;
-						}
-
-						int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
-								BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
-								BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, area.getBlizzards(),
-								robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
-						int drained = robot.drainEnergy(energy);
-						if (drained < energy) {
-							return;
-						}
-
-						if(batteryNumber >= area.getBatteries().size()) {
-							return;
-						}
-						
-						Battery battery = area.getBatteries().get(batteryNumber);
-
-						if (battery.getWeight() + robot.getCargo().load() > robot.getCargo().getMaxLoad()) {
-							return;
-						}
-
-						energy = ENERGY_COST_CALCULATOR.CONST_WEIGHT.calculate(
-								BoardConfig.INT_CONFIG_ENTRY.COLLECT_BATTERY_CONST_ENERGY, area.getBlizzards(),
-								battery.getWeight(), BoardConfig.INT_CONFIG_ENTRY.COLLECT_BATTERY_WEIGHT_MULTIPLIER);
-						if (energy > robot.getTotalEnergy()) {
-							return;
-						}
-						robot.drainEnergy(energy);
-
-						if (WeatherEffects.preventedBy(area.getBlizzards())) {
-							return;
-						}
-
-						area.getBatteries().remove(battery);
-						robot.getCargo().addBattery(battery);
-
-					}
-				});
+					});
+		});
 
 		return true;
 	}), COLLECT_ROCKS((planet, commands) -> {
