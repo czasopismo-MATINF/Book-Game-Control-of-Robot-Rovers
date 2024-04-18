@@ -41,7 +41,7 @@ public enum CREATE_COMMAND {
 					CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.BATTERY_WEIGHT));
 		}
 		p.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getRobots().add(new Robot(
-				CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.ROBOT_MAX_LOAD), batteries));
+				CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.ROBOT_CARGO_MAX_LOAD), batteries));
 
 		return true;
 	}), ADD_ROBOTS("addRobots", "add robots : %d %d %d", 3, (p, c) -> {
@@ -57,7 +57,7 @@ public enum CREATE_COMMAND {
 						CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.BATTERY_WEIGHT));
 			}
 			p.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getRobots().add(new Robot(
-					CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.ROBOT_MAX_LOAD), batteries));
+					CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.ROBOT_CARGO_MAX_LOAD), batteries));
 		}
 
 		return true;
@@ -110,7 +110,17 @@ public enum CREATE_COMMAND {
 		p.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getBlizzards().add(new Blizzard(volume));
 
 		return true;
+	}), CLEAR_BLIZZARDS("clearBlizzards", "clear blizzards : %d %d", 2, (p, c) -> {
+		
+		GPSCoordinates gpsCoords = CREATE_COMMAND.getCoords(c, p);
+		
+		Area area = p.getSurface()[gpsCoords.getX()][gpsCoords.getY()];
+		
+		area.getBlizzards().clear();
+		
+		return true;
 	}), CLEAR_AREA("clearArea", "clear area : %d %d", 2, (p, c) -> {
+	
 
 		GPSCoordinates gpsCoords = CREATE_COMMAND.getCoords(c, p);
 

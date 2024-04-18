@@ -38,11 +38,20 @@ public class Robot implements Serializable {
 	}
 
 	public boolean insertBattery(Battery battery, int slot) {
-		if (slot < this.batteries.length && this.batteries[slot] == null) {
+		if (slot >=0 && slot < this.batteries.length && this.batteries[slot] == null) {
 			this.batteries[slot] = battery;
 			return true;
 		}
 		return false;
+	}
+	
+	public int getFreeSlot() {
+		for(int i = 0; i < this.getBatteries().length; ++i) {
+			if(this.getBatteries()[i] == null) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	public Battery removeBattery(int slot) {
@@ -57,9 +66,25 @@ public class Robot implements Serializable {
 	public List<Battery> getChargedBatteries() {
 		return Arrays.asList(this.getBatteries()).stream().filter(b -> b != null && b.getEnergy() > 0).collect(Collectors.toList());
 	}
+	
+	public List<Battery> getNotNullBatteries() {
+		return Arrays.asList(this.getBatteries()).stream().filter(b -> b != null).collect(Collectors.toList());
+	}
+	
+	public String getBatteryStatus() {
+		return Arrays.asList(this.getBatteries()).stream().map(b -> {
+			if(b == null) return "0";
+			return "1";
+		}).collect(Collectors.joining());
+	}
 
 	public int getTotalEnergy() {
 		return this.getChargedBatteries().stream().collect(Collectors.summingInt(b -> b.getEnergy()));
+	}
+	
+	public int getTotalWeight() {
+		int batteryWeight = Arrays.asList(this.getBatteries()).stream().filter(b -> b != null).collect(Collectors.summingInt(b -> b.getWeight()));
+		return this.getCargo().load() + batteryWeight;
 	}
 	
 	public int drainEnergy(int energy) {

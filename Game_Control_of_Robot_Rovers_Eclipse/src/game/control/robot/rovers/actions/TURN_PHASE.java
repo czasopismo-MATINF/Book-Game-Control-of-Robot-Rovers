@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+import java.util.Random;
+
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -16,20 +18,31 @@ import game.control.robot.rovers.config.GameConfig;
 
 import java.lang.FunctionalInterface;
 
-//@FunctionalInterface
-//interface F4<A, B, C, D> {
-//	public void apply(A a, B b, C c, D d);
-//}
+@FunctionalInterface
+interface P4<A, B, C, D, E> {
+	public void apply(A a, B b, C c, D d, E e);
+}
 
 @FunctionalInterface
-interface F5<A, B, C, D, E> {
-	public void apply(A a, B b, C c, D d, E e);
+interface F5<A, B, C, D, E, F> {
+	public F apply(A a, B b, C c, D d, E e);
 }
 
 class WeatherEffects {
 
-	public boolean operationSuccess(List<Blizzard> blizzards, int min, int max) {
-		return true;
+	public static boolean preventedBy(List<Blizzard> blizzards) {
+
+		Random random = new Random(System.currentTimeMillis());
+
+		for (Blizzard blizzard : blizzards) {
+			int rnd = random.nextInt(0, 101);
+			if (rnd < blizzard.getVolume()) {
+				return true;
+			}
+		}
+
+		return false;
+
 	}
 
 }
@@ -40,7 +53,7 @@ class RobotPromptCommandMap extends HashMap<Robot, PromptCommand> {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	protected int phase;
 	protected Map<Integer, PromptCommand[]> commands;
 	protected END_OF_TURN_COMMAND command;
@@ -51,8 +64,8 @@ class RobotPromptCommandMap extends HashMap<Robot, PromptCommand> {
 		robots.forEach(robot -> {
 
 			if (commands.getOrDefault(robot.getId(), null) != null
-				&& commands.getOrDefault(robot.getId(), null)[phase] != null
-				&& END_OF_TURN_COMMAND.valueOf(commands.getOrDefault(robot.getId(), null)[phase].underscoreCasedKeyWords) == command) {
+					&& commands.getOrDefault(robot.getId(), null)[phase] != null && END_OF_TURN_COMMAND.valueOf(
+							commands.getOrDefault(robot.getId(), null)[phase].underscoreCasedKeyWords) == command) {
 
 				this.put(robot, commands.getOrDefault(robot.getId(), null)[phase]);
 			}
@@ -75,15 +88,15 @@ class RobotPromptCommandMap extends HashMap<Robot, PromptCommand> {
 
 	}
 
-	public void forEach(Planet planet, F5<Robot, PromptCommand, Planet, Area, GPSCoordinates> procedure) {
+	public void forEach(Planet planet, P4<Robot, PromptCommand, Planet, Area, GPSCoordinates> procedure) {
 
 		this.entrySet().forEach(entry -> {
-			
+
 			GPSCoordinates coords = planet.robotGPSCoordinates(entry.getKey().getId());
 			Area area = planet.getSurface()[coords.getX()][coords.getY()];
-			
+
 			procedure.apply(entry.getKey(), entry.getValue(), planet, area, coords);
-			
+
 		});
 
 	}
@@ -92,32 +105,55 @@ class RobotPromptCommandMap extends HashMap<Robot, PromptCommand> {
 
 enum ENERGY_COST_CALCULATOR {
 
-	RANDOM((min, max) -> {
+	RANDOM((min, max, blizzards, weight, multiplier) -> {
+		Random random = new Random(System.currentTimeMillis());
+		return random.nextInt(min, max + 1);
+	}), CONST((min, max, blizzards, weight, multiplier) -> {
 		return min;
-	}), CONST((min, max) -> {
+	}), MIN((min, max, blizzards, weight, multiplier) -> {
 		return min;
-	}), MIN((min, max) -> {
-		return min;
-	}), MAX((min, max) -> {
+	}), MAX((min, max, blizzards, weight, multiplier) -> {
 		return max;
-	}), AVG((min, max) -> {
+	}), AVG((min, max, blizzards, weight, multiplier) -> {
 		return (min + max) / 2;
+	}), REACH_DESTINATION_ON_AREA((min, max, blizzards, weight, multiplier) -> {
+		Random random = new Random(System.currentTimeMillis());
+		int totalVolume = blizzards.stream().collect(Collectors.summingInt(b -> b.getVolume()));
+		return random.nextInt(min, max + (int) (((double) max) * ((double) totalVolume) / 100)) + weight * multiplier;
+	}), CONST_WEIGHT((min, max, blizzards, weight, multiplier) -> {
+		return min + weight * multiplier;
 	});
 
 	protected BoardConfig config = new GameConfig();
 
-	private final BiFunction<Integer, Integer, Integer> calculate;
+	private final F5<Integer, Integer, List<Blizzard>, Integer, Integer, Integer> calculate;
 
-	private ENERGY_COST_CALCULATOR(BiFunction<Integer, Integer, Integer> calculate) {
+	private ENERGY_COST_CALCULATOR(F5<Integer, Integer, List<Blizzard>, Integer, Integer, Integer> calculate) {
 		this.calculate = calculate;
 	}
 
-	public int calculate(BoardConfig.INT_CONFIG_ENTRY entry1, BoardConfig.INT_CONFIG_ENTRY entry2) {
-		return this.calculate.apply(this.config.getIntValue(entry1), this.config.getIntValue(entry2));
+	public int calculate(BoardConfig.INT_CONFIG_ENTRY entry1, BoardConfig.INT_CONFIG_ENTRY entry2,
+			List<Blizzard> blizzards, Integer weight, Integer multiplier) {
+		return this.calculate.apply(this.config.getIntValue(entry1), this.config.getIntValue(entry2), blizzards, weight,
+				multiplier);
 	}
 
-	public int calculate(BoardConfig.INT_CONFIG_ENTRY entry) {
-		return this.calculate.apply(this.config.getIntValue(entry), this.config.getIntValue(entry));
+	public int calculate(BoardConfig.INT_CONFIG_ENTRY entry1, List<Blizzard> blizzards, Integer weight,
+			Integer multiplier) {
+		return this.calculate.apply(this.config.getIntValue(entry1), this.config.getIntValue(entry1), blizzards, weight,
+				multiplier);
+	}
+
+	public int calculate(BoardConfig.INT_CONFIG_ENTRY entry1, BoardConfig.INT_CONFIG_ENTRY entry2,
+			List<Blizzard> blizzards, Integer weight, BoardConfig.INT_CONFIG_ENTRY entry3) {
+		return this.calculate.apply(this.config.getIntValue(entry1), this.config.getIntValue(entry2), blizzards, weight,
+				this.config.getIntValue(entry3));
+	}
+
+	public int calculate(BoardConfig.INT_CONFIG_ENTRY entry1, List<Blizzard> blizzards, Integer weight,
+			BoardConfig.INT_CONFIG_ENTRY entry2) {
+		return this.calculate.apply(this.config.getIntValue(entry1), this.config.getIntValue(entry1), blizzards, weight,
+				this.config.getIntValue(entry2));
 	}
 
 }
@@ -130,7 +166,7 @@ public enum TURN_PHASE {
 				(robot, promptCommand, p, area, coords) -> {
 
 					int energyCost = ENERGY_COST_CALCULATOR.CONST
-							.calculate(BoardConfig.INT_CONFIG_ENTRY.DROP_CARGO_ENERGY);
+							.calculate(BoardConfig.INT_CONFIG_ENTRY.DROP_CARGO_ENERGY, area.getBlizzards(), 0, 0);
 
 					if (energyCost <= robot.getTotalEnergy()) {
 
@@ -142,19 +178,7 @@ public enum TURN_PHASE {
 					}
 
 				});
-		/*
-		 * Map<Robot, PromptCommand> droppers = TURN_PHASE.filter(planet.getRobots(),
-		 * commands, 0, END_OF_TURN_COMMAND.DROP_CARGO);
-		 * 
-		 * TURN_PHASE.forEach(droppers.keySet(), planet, commands, (cmd, robot, coords,
-		 * area) -> {
-		 * 
-		 * int rocks = robot.getCargo().getRocks(); List<Battery> batteries =
-		 * robot.getCargo().getBatteriesInCargo(); robot.getCargo().releaseCargo();
-		 * area.addBatteriesAndRocks(batteries, rocks);
-		 * 
-		 * });
-		 */
+
 		return true;
 	}), DROP_BATTERY((planet, commands) -> {
 
@@ -162,7 +186,7 @@ public enum TURN_PHASE {
 				(robot, promptCommand, p, area, coords) -> {
 
 					int energyCost = ENERGY_COST_CALCULATOR.CONST
-							.calculate(BoardConfig.INT_CONFIG_ENTRY.DROP_BATTERY_ENERGY);
+							.calculate(BoardConfig.INT_CONFIG_ENTRY.DROP_BATTERY_ENERGY, area.getBlizzards(), 0, 0);
 
 					if (energyCost <= robot.getTotalEnergy()) {
 
@@ -180,94 +204,102 @@ public enum TURN_PHASE {
 					}
 
 				});
-		/*
-		 * planet.getAllAreas().stream().forEach(a -> {
-		 * 
-		 * Map<Robot, PromptCommand> droppers = TURN_PHASE.filter(a.getRobots(),
-		 * commands, 1, END_OF_TURN_COMMAND.DROP_BATTERY);
-		 * 
-		 * TURN_PHASE.forEach(droppers.keySet(), planet, commands, (cmd, robot, coords,
-		 * area) -> {
-		 * 
-		 * // wez baterie jesli jest i poloz na grunice zuzywajac energie
-		 * 
-		 * });
-		 * 
-		 * });
-		 */
+
 		return true;
 	}), COLLECT_BATTERY((planet, commands) -> {
 
-//		List<Robot> robots = new ArrayList(planet.getAllRobots());
-//		Collections.shuffle(robots);
-//		new RobotPromptCommandMap(robots, commands, 1, END_OF_TURN_COMMAND.COLLECT_BATTERY)
-//		.forEach(planet, (robot, command, p, area, coords) -> {
-//			
-//		});
-		/*
-		 * planet.getAllAreas().stream().forEach(a -> {
-		 * 
-		 * Map<Robot, PromptCommand> collectors = TURN_PHASE.filter(a.getRobots(),
-		 * commands, 1, END_OF_TURN_COMMAND.COLLECT_BATTERY);
-		 * 
-		 * TURN_PHASE.forEach(collectors.keySet(), planet, commands, (cmd, robot,
-		 * coords, area) -> {
-		 * 
-		 * // wez id baterii sprawdz zamiec podnies zuzywajac energie });
-		 * 
-		 * });
-		 */
+		new RobotPromptCommandMap(planet.getAllRobots(), commands, 1, END_OF_TURN_COMMAND.COLLECT_BATTERY)
+				.forEach(planet, (robot, promptCommand, p, area, coords) -> {
+
+					if ("SLOT".equals(promptCommand.argumentsArray[2].toUpperCase())) {
+
+						int freeSlot = robot.getFreeSlot();
+						if (freeSlot < 0) {
+							return;
+						}
+
+						int batteryNumber = Integer.valueOf(promptCommand.argumentsArray[0]);
+						if (batteryNumber < 0) {
+							return;
+						}
+
+						int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
+								BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
+								BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, area.getBlizzards(),
+								robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+						int drained = robot.drainEnergy(energy);
+						if (drained < energy) {
+							return;
+						}
+						
+						if(batteryNumber >= area.getBatteries().size()) {
+							return;
+						}
+
+						Battery battery = area.getBatteries().get(batteryNumber);
+
+						energy = ENERGY_COST_CALCULATOR.CONST_WEIGHT.calculate(
+								BoardConfig.INT_CONFIG_ENTRY.COLLECT_BATTERY_CONST_ENERGY, area.getBlizzards(),
+								battery.getWeight(), BoardConfig.INT_CONFIG_ENTRY.COLLECT_BATTERY_WEIGHT_MULTIPLIER);
+						if (energy > robot.getTotalEnergy()) {
+							return;
+						}
+						robot.drainEnergy(energy);
+
+						if (WeatherEffects.preventedBy(area.getBlizzards())) {
+							return;
+						}
+
+						area.getBatteries().remove(battery);
+						robot.insertBattery(battery, freeSlot);
+
+					} else if ("CARGO".equals(promptCommand.argumentsArray[2].toUpperCase())) {
+
+						int batteryNumber = Integer.valueOf(promptCommand.argumentsArray[0]);
+						if (batteryNumber < 0) {
+							return;
+						}
+
+						int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
+								BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
+								BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, area.getBlizzards(),
+								robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+						int drained = robot.drainEnergy(energy);
+						if (drained < energy) {
+							return;
+						}
+
+						if(batteryNumber >= area.getBatteries().size()) {
+							return;
+						}
+						
+						Battery battery = area.getBatteries().get(batteryNumber);
+
+						if (battery.getWeight() + robot.getCargo().load() > robot.getCargo().getMaxLoad()) {
+							return;
+						}
+
+						energy = ENERGY_COST_CALCULATOR.CONST_WEIGHT.calculate(
+								BoardConfig.INT_CONFIG_ENTRY.COLLECT_BATTERY_CONST_ENERGY, area.getBlizzards(),
+								battery.getWeight(), BoardConfig.INT_CONFIG_ENTRY.COLLECT_BATTERY_WEIGHT_MULTIPLIER);
+						if (energy > robot.getTotalEnergy()) {
+							return;
+						}
+						robot.drainEnergy(energy);
+
+						if (WeatherEffects.preventedBy(area.getBlizzards())) {
+							return;
+						}
+
+						area.getBatteries().remove(battery);
+						robot.getCargo().addBattery(battery);
+
+					}
+				});
+
 		return true;
 	}), COLLECT_ROCKS((planet, commands) -> {
 
-//		planet.getAllAreas().forEach(area -> {
-//			
-//			RobotPromptCommandMap miners = new RobotPromptCommandMap(area.getRobots(),commands,1, END_OF_TURN_COMMAND.COLLECT_ROCKS);
-//			
-//			Map<Robot, Integer> collectedRocks = new HashMap<>();
-//			
-//			miners.keySet().forEach(robot -> {
-//				collectedRocks.put(robot, 0);
-//			});
-//			
-//			while(true) {
-//				
-//				if(area.getRocks() == 0) break;
-//				
-//				
-//				
-//			}
-//			
-//		});
-		/*
-		 * planet.getAllAreas().stream().forEach(a -> {
-		 * 
-		 * Map<Robot, PromptCommand> rockMiners = TURN_PHASE.filter(a.getRobots(),
-		 * commands, 1, END_OF_TURN_COMMAND.COLLECT_ROCKS);
-		 * 
-		 * Map<Robot, Integer> collectedRocks = new HashMap<>();
-		 * 
-		 * rockMiners.keySet().forEach(r -> { collectedRocks.put(r, 0); });
-		 * 
-		 * // dodac zuzywanie energii // dodac obsluge zamieci w zaleznosci od jej sily
-		 * 
-		 * while (true) {
-		 * 
-		 * if (a.getRocks() == 0) { break; }
-		 * 
-		 * List<Robot> notYet = rockMiners.entrySet().stream().filter(e -> { if
-		 * (Integer.valueOf(e.getValue().argumentsArray[0]) <=
-		 * collectedRocks.getOrDefault(e.getKey(), 0)) return false; if
-		 * (e.getKey().getCargo().isFull()) return false; return true; }).map(e ->
-		 * e.getKey()).collect(Collectors.toList());
-		 * 
-		 * if (notYet.size() == 0) { break; }
-		 * 
-		 * Collections.shuffle(notYet); a.mineRocks(1);
-		 * notYet.get(0).getCargo().addRocks(1); }
-		 * 
-		 * });
-		 */
 		return true;
 	}), MARKER_NEW((p, c) -> {
 

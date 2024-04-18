@@ -49,6 +49,10 @@ public class MaxLoadCargo implements Serializable {
 	public List<Battery> getBatteriesInCargo() {
 		return batteriesInCargo;
 	}
+	
+	public int getMaxLoad() {
+		return this.maxLoad;
+	}
 
 	public int getRocks() {
 		return rocks;

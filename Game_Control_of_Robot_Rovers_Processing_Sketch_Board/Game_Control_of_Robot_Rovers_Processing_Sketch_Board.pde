@@ -33,7 +33,11 @@ import game.control.robot.rovers.*;
     
   }
   
-  void printArea(Area area) {
+  enum PRINT_MODE {
+     TEXT; 
+  }
+  
+  void printArea(Area area, PRINT_MODE mode) {
 
     if( area.getRocks() > 0 ) {
       textSize(15);
@@ -62,7 +66,27 @@ import game.control.robot.rovers.*;
     if( area.getRobots().size() > 0 ) {
       for(Robot r : area.getRobots()) {
          fill(0,0,0);
-         circle(random(10,90),random(10,90),10); 
+         float rx = random(10, 90);
+         float ry = random(10, 90);
+         circle(rx,ry,10);
+         
+         if(mode == PRINT_MODE.TEXT) {
+           
+           textSize(10);
+           
+           text(String.valueOf(r.getId()), rx - 10, ry - 10);
+           text(String.valueOf(r.getTotalEnergy()), rx, ry - 10);
+    
+           if(r.getCargo().getRocks() >= 0) {
+             text(String.valueOf(r.getCargo().getRocks()), rx - 10, ry + 10);
+           }
+           if(r.getCargo().getBatteriesInCargo().size() >= 0) {
+             text(String.valueOf(r.getCargo().getBatteriesInCargo().size()), rx, ry + 10);
+           }
+           text(String.valueOf(r.getBatteryStatus()), rx + 10, ry + 10);
+         
+         }
+         
       }
     }
     if( area.getMotherShip() != null ) {
@@ -109,7 +133,7 @@ import game.control.robot.rovers.*;
             translate(xorigin+xshift*areaSize+areaSize*i,yorigin+yshift*areaSize+areaSize*j);
             pushMatrix();
             scale(areaSize/100);
-            printArea(planet.getSurface()[i][j]);
+            printArea(planet.getSurface()[i][j], PRINT_MODE.TEXT);
             popMatrix();
             translate(-xorigin-xshift*areaSize-areaSize*i,-yorigin-yshift*areaSize-areaSize*j);
         }

@@ -125,8 +125,14 @@ public class ControlRobotTurnGameBoardAndCommands {
 	public String runTurnCommitCommand(TURN_COMMIT_COMMAND command, PromptCommand promptCommand) {
 		
 		Map.Entry<TURN_PHASE[][], Map<Integer, PromptCommand[]>> e2 = Map.entry(this.END_OF_TURN_PHASE_CONFIG, this.endOfTurnRobotCommands);
-		return command.action.apply(this.getPlanet(), e2);
+		var ret = command.action.apply(this.getPlanet(), e2);
+		this.resetTurnCommitCommands();
+		return ret;
 		
+	}
+	
+	protected void resetTurnCommitCommands() {
+		this.endOfTurnRobotCommands = new ConcurrentHashMap<>();
 	}
 	
 	/********************/
