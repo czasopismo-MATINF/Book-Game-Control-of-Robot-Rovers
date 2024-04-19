@@ -41,6 +41,10 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 				String.format(END_OF_TURN_COMMAND.COLLECT_BATTERY.messageFormat, batteryNumber, "to", "slot"), this);
 	}
 
+	protected void collect_rocks(int rocks) {
+		this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.COLLECT_ROCKS.messageFormat, rocks), this);
+	}
+
 	protected int i = 0;
 
 	public Boolean call() {
@@ -50,22 +54,47 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 		 */
 
 		Random random = new Random(System.currentTimeMillis());
-		switch(1 + random.nextInt() % 5) {
-		case 1 : {
-			this.drop_battery(random.nextInt() % 10);
-		} break;
-		case 2 : {
+		switch (random.nextInt() % 6) {
+		case 0: {
+			this.drop_battery(random.nextInt() % 15);
+		}
+			break;
+		case 1: {
 			this.drop_cargo();
-		} break;
-		case 3 : {
-			this.move('E');
-		} break;
-		case 4 : {
+		}
+			break;
+		case 2: {
+			switch (random.nextInt() % 4) {
+			case 0: {
+				this.move('E');
+			}
+				break;
+			case 1: {
+				this.move('S');
+			}
+				break;
+			case 2: {
+				this.move('W');
+			}
+				break;
+			case 3: {
+				this.move('N');
+			}
+				break;
+			}
+		}
+			break;
+		case 3: {
 			this.collect_battery_to_cargo(random.nextInt(2));
-		} break;
-		case 5 : {
+		}
+			break;
+		case 4: {
 			this.collect_battery_to_slot(random.nextInt(2));
 		}
+		case 5: {
+			this.collect_rocks(5);
+		}
+
 		}
 
 		return true;

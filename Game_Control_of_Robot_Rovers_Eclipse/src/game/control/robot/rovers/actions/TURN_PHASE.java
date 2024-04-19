@@ -109,7 +109,9 @@ enum ENERGY_COST_CALCULATOR {
 	RANDOM((min, max, blizzards, weight, multiplier) -> {
 		Random random = new Random(System.currentTimeMillis());
 		return random.nextInt(min, max + 1);
-	}), CONST((min, max, blizzards, weight, multiplier) -> {
+	}),
+
+	CONST((min, max, blizzards, weight, multiplier) -> {
 		return min;
 	}), MIN((min, max, blizzards, weight, multiplier) -> {
 		return min;
@@ -181,7 +183,9 @@ public enum TURN_PHASE {
 				});
 
 		return true;
-	}), DROP_BATTERY((planet, commands) -> {
+	}),
+
+	DROP_BATTERY((planet, commands) -> {
 
 		new RobotPromptCommandMap(planet.getAllRobots(), commands, 1, END_OF_TURN_COMMAND.DROP_BATTERY).forEach(planet,
 				(robot, promptCommand, p, area, coords) -> {
@@ -328,8 +332,65 @@ public enum TURN_PHASE {
 		return true;
 	}), COLLECT_ROCKS((planet, commands) -> {
 
+		planet.getAllAreas().stream().forEach(area -> {
+
+			int ENERGY_PER_KG = ENERGY_COST_CALCULATOR.CONST.calculate(BoardConfig.INT_CONFIG_ENTRY.COLLECT_BATTERY_CONST_ENERGY, null, 0, 0);
+
+			RobotPromptCommandMap areaMiners = new RobotPromptCommandMap(area.getRobots(), commands, 1,
+					END_OF_TURN_COMMAND.COLLECT_ROCKS).filter(promptCommand -> {
+						return Integer.valueOf(promptCommand.argumentsArray[0]) > 0;
+					});
+			Map<Robot, Integer> rockAmounts = new HashMap<>();
+			Map<Robot, Integer> collectAttempts = new HashMap<>();
+			areaMiners.forEach(planet, (robot, promptCommand, p, a, coords) -> {
+				rockAmounts.put(robot, Integer.valueOf(promptCommand.argumentsArray[0]));
+				collectAttempts.put(robot, 0);
+			});
+
+			while (true) {
+
+				List<Robot> stillMining = areaMiners.keySet().stream().filter(r -> {
+
+					return collectAttempts.get(r) < rockAmounts.get(r);
+
+				}).collect(Collectors.toList());
+
+				if (stillMining.size() == 0) {
+					break;
+				}
+
+				Collections.shuffle(stillMining);
+
+				for (Robot r : stillMining) {
+
+					collectAttempts.put(r, collectAttempts.get(r) + 1);
+
+					if (ENERGY_PER_KG > r.getTotalEnergy()) {
+						continue;
+					}
+					if (r.getCargo().load() + 1 > r.getCargo().getMaxLoad()) {
+						continue;
+					}
+
+					r.drainEnergy(ENERGY_PER_KG);
+
+					if (WeatherEffects.preventedBy(area.getBlizzards())) {
+						return;
+					}
+
+					int rocks = area.mineRocks(1);
+					r.getCargo().addRocks(rocks);
+
+				}
+
+			}
+
+		});
+
 		return true;
-	}), MARKER_NEW((p, c) -> {
+	}),
+
+	MARKER_NEW((p, c) -> {
 
 		return true;
 	}), MARKER_OVERWRITE((p, c) -> {
@@ -385,44 +446,5 @@ public enum TURN_PHASE {
 	private TURN_PHASE(BiFunction<Planet, Map<Integer, PromptCommand[]>, Boolean> phaseAction) {
 		this.phaseAction = phaseAction;
 	}
-	/*
-	 * protected static void forEach(Collection<Robot> robots, Planet planet,
-	 * Map<Integer, PromptCommand[]> commands, F<PromptCommand[], Robot,
-	 * GPSCoordinates, Area> function) {
-	 * 
-	 * robots.stream().forEach(r -> {
-	 * 
-	 * GPSCoordinates coords = planet.robotGPSCoordinates(r.getId()); Area area =
-	 * planet.getSurface()[coords.getX()][coords.getY()]; PromptCommand[] command =
-	 * commands.getOrDefault(r.getId(), null); function.apply(command, r, coords,
-	 * area);
-	 * 
-	 * });
-	 * 
-	 * }
-	 * 
-	 * protected static Map<Robot, PromptCommand> filter(List<Robot> robots,
-	 * Map<Integer, PromptCommand[]> commands, int phase, END_OF_TURN_COMMAND
-	 * command) {
-	 * 
-	 * Map<Robot, PromptCommand> filtered = new HashMap<>();
-	 * 
-	 * robots.stream().filter(r -> {
-	 * 
-	 * PromptCommand[] cmds = commands.getOrDefault(r.getId(), null); if (cmds ==
-	 * null) return false; PromptCommand cmd = cmds[phase]; if (cmd == null) return
-	 * false; if (END_OF_TURN_COMMAND.valueOf(cmd.underscoreCasedKeyWords) ==
-	 * command) { if (cmd.argumentsArray.length < command.numberOfArguments) return
-	 * false; }
-	 * 
-	 * filtered.put(r, cmd);
-	 * 
-	 * return true;
-	 * 
-	 * }).collect(Collectors.toList());
-	 * 
-	 * return filtered;
-	 * 
-	 * }
-	 */
+
 }
