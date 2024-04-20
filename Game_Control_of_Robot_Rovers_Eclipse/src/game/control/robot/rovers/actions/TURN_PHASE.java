@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
 
 import java.util.Random;
 
@@ -44,6 +45,61 @@ class WeatherEffects {
 
 		return false;
 
+	}
+
+	public static boolean success(List<Blizzard> blizzards) {
+
+		Random random = new Random(System.currentTimeMillis());
+
+		for (Blizzard blizzard : blizzards) {
+			int rnd = random.nextInt(0, 101);
+			if (rnd < blizzard.getVolume()) {
+				return false;
+			}
+		}
+
+		return true;
+
+	}
+
+}
+
+class RandomEffects {
+
+	public static int getRandom(int min, int max) {
+
+		Random random = new Random(System.currentTimeMillis());
+
+		return random.nextInt(min, max + 1);
+
+	}
+
+	public static String mergeMarkers(String oldMarker, String newMarker, String groundMarker, int chars,
+			List<Blizzard> blizzards) {
+		
+		StringBuffer sBuffer = new StringBuffer();
+		
+		int i = 0;
+		for(; i < chars; ++i) {
+			if(i < newMarker.length()) {
+				sBuffer.append(newMarker.charAt(i));
+			} else {
+				if(i < oldMarker.length()) {
+					sBuffer.append('.');
+				} else {
+					if(i < groundMarker.length()) {
+						sBuffer.append(groundMarker.charAt(i));
+					}
+				}
+			}
+		}
+		
+		for(; i < groundMarker.length(); ++i) {
+			sBuffer.append(groundMarker.charAt(i));
+		}
+		
+		return sBuffer.toString();
+		
 	}
 
 }
@@ -334,7 +390,8 @@ public enum TURN_PHASE {
 
 		planet.getAllAreas().stream().forEach(area -> {
 
-			int ENERGY_PER_KG = ENERGY_COST_CALCULATOR.CONST.calculate(BoardConfig.INT_CONFIG_ENTRY.COLLECT_BATTERY_CONST_ENERGY, null, 0, 0);
+			int ENERGY_PER_KG = ENERGY_COST_CALCULATOR.CONST
+					.calculate(BoardConfig.INT_CONFIG_ENTRY.COLLECT_BATTERY_CONST_ENERGY, null, 0, 0);
 
 			RobotPromptCommandMap areaMiners = new RobotPromptCommandMap(area.getRobots(), commands, 1,
 					END_OF_TURN_COMMAND.COLLECT_ROCKS).filter(promptCommand -> {
@@ -388,12 +445,114 @@ public enum TURN_PHASE {
 		});
 
 		return true;
-	}),
+	}), MARKER_NEW((planet, commands) -> {
 
-	MARKER_NEW((p, c) -> {
+		planet.getAllAreas().forEach(area -> {
+
+			int ENERGY_PER_CHAR = ENERGY_COST_CALCULATOR.CONST
+					.calculate(BoardConfig.INT_CONFIG_ENTRY.MARKER_ENERGY_PER_CHAR, null, 0, 0);
+
+			List<Robot> areaRobots = new ArrayList<>(area.getRobots());
+			Collections.shuffle(areaRobots);
+			RobotPromptCommandMap writers = new RobotPromptCommandMap(areaRobots, commands, 2,
+					END_OF_TURN_COMMAND.MARKER_NEW).filter(promptCommand -> {
+						return String.valueOf(promptCommand.argumentsArray[0]).length() > 0;
+					});
+
+			writers.forEach(planet, (robot, promptCommand, p, a, coords) -> {
+
+				int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(), robot.getTotalWeight(),
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+				int drained = robot.drainEnergy(energy);
+				if (drained < energy) {
+					return;
+				}
+
+				int groundMarkerPosition;
+				if (WeatherEffects.success(area.getBlizzards())) {
+					area.getMarkers().add(new String(""));
+					groundMarkerPosition = area.getMarkers().size() - 1;
+				} else {
+					groundMarkerPosition = RandomEffects.getRandom(0, area.getMarkers().size() - 1);
+				}
+
+				String oldMarker = new String("");
+				String newMarker = String.valueOf(promptCommand.argumentsArray[0]);
+				String groundMarker = area.getMarkers().get(groundMarkerPosition);
+
+				int numberOfChars = (oldMarker.length() > newMarker.length() ? oldMarker.length() : newMarker.length());
+				int energyCost = ENERGY_PER_CHAR * numberOfChars;
+				int drainedEnergy = robot.drainEnergy(energyCost);
+				if (ENERGY_PER_CHAR > 0) {
+					numberOfChars = drainedEnergy / ENERGY_PER_CHAR;
+				}
+
+				String marker = RandomEffects.mergeMarkers(oldMarker, newMarker, groundMarker, numberOfChars,
+						area.getBlizzards());
+				area.getMarkers().set(groundMarkerPosition, marker);
+
+			});
+
+		});
 
 		return true;
-	}), MARKER_OVERWRITE((p, c) -> {
+	}), MARKER_OVERWRITE((planet, commands) -> {
+
+		planet.getAllAreas().forEach(area -> {
+
+			int ENERGY_PER_CHAR = ENERGY_COST_CALCULATOR.CONST
+					.calculate(BoardConfig.INT_CONFIG_ENTRY.MARKER_ENERGY_PER_CHAR, null, 0, 0);
+
+			List<Robot> areaRobots = new ArrayList<>(area.getRobots());
+			Collections.shuffle(areaRobots);
+			RobotPromptCommandMap writers = new RobotPromptCommandMap(areaRobots, commands, 2,
+					END_OF_TURN_COMMAND.MARKER_OVERWRITE).filter(promptCommand -> {
+						return String.valueOf(promptCommand.argumentsArray[1]).length() > 0
+								&& Integer.valueOf(promptCommand.argumentsArray[0]) >= 0
+								&& Integer.valueOf(promptCommand.argumentsArray[0]) < area.getMarkers().size();
+					});
+
+			writers.forEach(planet, (robot, promptCommand, p, a, coords) -> {
+
+				int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(), robot.getTotalWeight(),
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+				int drained = robot.drainEnergy(energy);
+				if (drained < energy) {
+					return;
+				}
+
+				int groundMarkerPosition;
+				if (WeatherEffects.success(area.getBlizzards())) {
+					groundMarkerPosition = Integer.valueOf(promptCommand.argumentsArray[0]);
+				} else {
+					groundMarkerPosition = RandomEffects.getRandom(0, area.getMarkers().size() - 1);
+					if (groundMarkerPosition == area.getMarkers().size()) {
+						area.getMarkers().add(new String(""));
+					}
+				}
+
+				String oldMarker = area.getMarkers().get(Integer.valueOf(promptCommand.argumentsArray[0]));
+				String newMarker = String.valueOf(promptCommand.argumentsArray[1]);
+				String groundMarker = area.getMarkers().get(groundMarkerPosition);
+
+				int numberOfChars = (oldMarker.length() > newMarker.length() ? oldMarker.length() : newMarker.length());
+				int energyCost = ENERGY_PER_CHAR * numberOfChars;
+				int drainedEnergy = robot.drainEnergy(energyCost);
+				if (ENERGY_PER_CHAR > 0) {
+					numberOfChars = drainedEnergy / ENERGY_PER_CHAR;
+				}
+
+				String marker = RandomEffects.mergeMarkers(oldMarker, newMarker, groundMarker, numberOfChars,
+						area.getBlizzards());
+				area.getMarkers().set(groundMarkerPosition, marker);
+
+			});
+
+		});
 
 		return true;
 	}), CHARGE_ROVER((p, c) -> {

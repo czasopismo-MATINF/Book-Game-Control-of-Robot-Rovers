@@ -16,6 +16,7 @@ public class Area implements Serializable {
 	private List<Battery> batteries;
 	private List<Blizzard> blizzards;
 	private List<ChargingStation> chargingStations;
+	private List<String> markers;
 
 	private int rocks = 0;
 	private boolean hasChasm = false;
@@ -27,6 +28,7 @@ public class Area implements Serializable {
 		this.batteries = new ArrayList<>();
 		this.blizzards = new ArrayList<>();
 		this.chargingStations = new ArrayList<>();
+		this.markers = new ArrayList<>();
 	}
 
 	public Area() {
@@ -53,6 +55,10 @@ public class Area implements Serializable {
 
 	public List<ChargingStation> getChargingStations() {
 		return chargingStations;
+	}
+	
+	public List<String> getMarkers() {
+		return this.markers;
 	}
 
 	public int getRocks() {

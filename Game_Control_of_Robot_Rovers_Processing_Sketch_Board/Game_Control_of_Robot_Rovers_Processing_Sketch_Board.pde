@@ -101,6 +101,14 @@ import game.control.robot.rovers.*;
         line(5,65,5,35);
         strokeWeight(1);
     }
+    if( area.getMarkers().size() > 0 ) {
+      for(int i = 0; i < area.getMarkers().size(); ++i) {
+        int mx = 2;
+        int my = 10 + ( ( i*10 ) % 80 );
+        textSize(10);
+        text(area.getMarkers().get(i), mx, my);
+      }
+    }
     if( area.getBlizzards().size() > 0 ) {
         for(int i = 0; i < area.getBlizzardVolume(); ++i) {
            fill(255,255,255);
@@ -166,14 +174,19 @@ void keyPressed() {
   }
   
   if (key == '+' || key == '=') {
-      areaSize += 1;
+      areaSize += 10;
   }
   if (key == '-' || key == '_') {
-      areaSize -= 1;
+      areaSize -= 10;
   }
   
 }
+
+/**********/
+
 String filePath =  "planet ... file ... path";
+
+/**********/
 
 /*
 void setup() {
@@ -197,6 +210,9 @@ void draw() {
   
 }
 */
+
+/**********/
+
 ControlRobotTurnGameBoardAndCommands game;
 ControlRobotTurnGameConcurrentShell gameShell;
 ExecutorService shellThreadPool;
