@@ -84,6 +84,10 @@ public class Area implements Serializable {
 	public void setMotherShip(MotherShip motherShip) {
 		this.motherShip = motherShip;
 	}
+	
+	public boolean hasMotherShip() {
+		return this.motherShip != null;
+	}
 
 	public void addBatteriesAndRocks(List<Battery> batteries, Integer rocks) {
 		this.batteries.addAll(batteries);

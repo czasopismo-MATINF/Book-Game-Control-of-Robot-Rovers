@@ -3,7 +3,7 @@ package game.control.robot.rovers;
 import java.util.concurrent.Callable;
 
 import game.control.robot.rovers.actions.END_OF_TURN_COMMAND;
-
+import game.control.robot.rovers.actions.MESSAGE_COMMAND;
 import game.control.robot.rovers.config.*;
 
 import java.util.Random;
@@ -66,6 +66,18 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 		this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.DISTRIBUTE_ENERGY.messageFormat, param), this);
 	}
 
+	protected String look_around() {
+		return this.gameShell.runCommand(String.format(MESSAGE_COMMAND.LOOK_AROUND.messageFormat), this);
+	}
+
+	protected String check_self() {
+		return this.gameShell.runCommand(String.format(MESSAGE_COMMAND.CHECK_SELF.messageFormat), this);
+	}
+
+	protected String check_gps() {
+		return this.gameShell.runCommand(String.format(MESSAGE_COMMAND.CHECK_GPS.messageFormat), this);
+	}
+
 	protected int i = 0;
 
 	public Boolean call() {
@@ -76,19 +88,18 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 
 		Random random = new Random(System.currentTimeMillis());
 
-		switch (random.nextInt() % 4) {
+		switch (random.nextInt() % 3) {
 
 		case 0:
-			this.charge_rover(random.nextInt() % 3, 10);
+			System.out.println(this.look_around());
+			break;
 		case 1:
-			this.charging_station();
+			System.out.println(this.check_self());
 			break;
 		case 2:
-			distribute_energy("full");
+			System.out.println(this.check_gps());
 			break;
-		case 3:
-			distribute_energy("even");
-			break;
+			
 		}
 
 		return true;

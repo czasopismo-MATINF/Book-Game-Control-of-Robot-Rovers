@@ -117,6 +117,24 @@ public class Planet implements Serializable {
 		}
 		return null;
 	}
+	
+	public GPSCoordinates areaGPSCoordinates(Area area) {
+		for (var i = 0; i < this.width; ++i) {
+			for (var j = 0; j < this.height; ++j) {
+				if (this.surface[i][j] == area) {
+					return new GPSCoordinates(i, j, this.width, this.height, GPSCoordinates.Mode.XYMODE);
+				}
+			}
+		}
+		return null;
+	}
+	
+	public Area getArea(GPSCoordinates coords) {
+		if(coords == null) {
+			return null;
+		}
+		return this.surface[coords.getX()][coords.getY()];
+	}
 
 	public void moveRobot(int robotId, String direction) {
 

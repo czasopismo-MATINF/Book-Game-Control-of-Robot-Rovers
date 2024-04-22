@@ -90,5 +90,21 @@ public class GPSCoordinates implements Serializable {
 	public int getY() {
 		return y;
 	}
+	
+	public int getLongitude() {
+		return this.longitude;
+	}
+	
+	public int getLatitude() {
+		return this.latitude;
+	}
+	
+	public int getWidth() {
+		return this.width;
+	}
+	
+	public int getHeight() {
+		return this.height;
+	}
 
 }
