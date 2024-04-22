@@ -71,6 +71,10 @@ public class Robot implements Serializable {
 		return Arrays.asList(this.getBatteries()).stream().filter(b -> b != null).collect(Collectors.toList());
 	}
 	
+	public List<Battery> getNotFullBatteries() {
+		return Arrays.asList(this.getBatteries()).stream().filter(b -> b != null && b.getCapacity() > b.getEnergy()).collect(Collectors.toList());
+	}
+	
 	public String getBatteryStatus() {
 		return Arrays.asList(this.getBatteries()).stream().map(b -> {
 			if(b == null) return "0";
@@ -102,6 +106,30 @@ public class Robot implements Serializable {
 		
 		return total;
 		
+	}
+	
+	public int chargeEnergy(int energy) {
+		int total = 0;
+		for(int i = 0; i < energy; ++i) {
+			List<Battery> notFullBatteries = this.getNotFullBatteries();
+			if(notFullBatteries.size() == 0) {
+				return energy - total;
+			}
+			Collections.shuffle(notFullBatteries);
+			notFullBatteries.get(0).charge(1);
+			total += 1;
+		}
+		return energy - total;
+	}
+	
+	public void chargeFull() {
+		this.getNotNullBatteries().forEach(b -> {
+			b.chargeFull();
+		});
+	}
+	
+	public void drainAllEnergy() {
+		this.getNotNullBatteries().stream().forEach(b -> b.drainAllEnergy());
 	}
 	
 	public boolean hasEnoughEnergy(int energy) {

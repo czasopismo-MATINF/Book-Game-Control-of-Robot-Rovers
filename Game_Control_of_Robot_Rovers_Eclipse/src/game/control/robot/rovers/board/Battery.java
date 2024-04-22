@@ -61,5 +61,13 @@ public class Battery implements Serializable {
 			return e;
 		}
 	}
+	
+	public void drainAllEnergy() {
+		this.energy = 0;
+	}
+	
+	public void chargeFull() {
+		this.energy = this.capacity;
+	}
 
 }

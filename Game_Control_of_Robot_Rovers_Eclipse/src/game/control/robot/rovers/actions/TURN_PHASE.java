@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
-
+import java.util.Arrays;
 import java.util.Random;
 
 import java.util.function.BiFunction;
@@ -76,30 +76,30 @@ class RandomEffects {
 
 	public static String mergeMarkers(String oldMarker, String newMarker, String groundMarker, int chars,
 			List<Blizzard> blizzards) {
-		
+
 		StringBuffer sBuffer = new StringBuffer();
-		
+
 		int i = 0;
-		for(; i < chars; ++i) {
-			if(i < newMarker.length()) {
+		for (; i < chars; ++i) {
+			if (i < newMarker.length()) {
 				sBuffer.append(newMarker.charAt(i));
 			} else {
-				if(i < oldMarker.length()) {
+				if (i < oldMarker.length()) {
 					sBuffer.append('.');
 				} else {
-					if(i < groundMarker.length()) {
+					if (i < groundMarker.length()) {
 						sBuffer.append(groundMarker.charAt(i));
 					}
 				}
 			}
 		}
-		
-		for(; i < groundMarker.length(); ++i) {
+
+		for (; i < groundMarker.length(); ++i) {
 			sBuffer.append(groundMarker.charAt(i));
 		}
-		
+
 		return sBuffer.toString();
-		
+
 	}
 
 }
@@ -555,13 +555,156 @@ public enum TURN_PHASE {
 		});
 
 		return true;
-	}), CHARGE_ROVER((p, c) -> {
+	}), CHARGE_ROVER((planet, commands) -> {
+
+		planet.getAllAreas().forEach(area -> {
+
+			List<Robot> areaRobots = new ArrayList<>(area.getRobots());
+			Collections.shuffle(areaRobots);
+			RobotPromptCommandMap chargers = new RobotPromptCommandMap(areaRobots, commands, 3,
+					END_OF_TURN_COMMAND.CHARGE_ROVER).filter(promptCommand -> {
+						return String.valueOf(promptCommand.argumentsArray[1]).length() > 0
+								&& String.valueOf(promptCommand.argumentsArray[1]).toUpperCase().equals("ENERGY")
+								&& Integer.valueOf(promptCommand.argumentsArray[0]) >= 0
+								&& Integer.valueOf(promptCommand.argumentsArray[2]) >= 0;
+					});
+
+			chargers.forEach(planet, (robot, promptCommand, p, a, coords) -> {
+
+				int energyCost = ENERGY_COST_CALCULATOR.CONST
+						.calculate(BoardConfig.INT_CONFIG_ENTRY.CHARGE_ROVER_CONNECTION_ENERGY, null, 0, 0);
+
+				if (energyCost > robot.getTotalEnergy()) {
+					return;
+				}
+
+				int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(), robot.getTotalWeight(),
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+				int drained = robot.drainEnergy(energy);
+				if (drained < energy) {
+					return;
+				}
+
+				int targetRobotId = Integer.valueOf(promptCommand.argumentsArray[0]);
+				Robot targetRobot = a.getRobots().stream().filter(r -> r.getId() == targetRobotId).findAny()
+						.orElse(null);
+				if (targetRobot == null) {
+					return;
+				}
+
+				if (WeatherEffects.preventedBy(a.getBlizzards())) {
+					return;
+				}
+
+				if (energyCost > robot.getTotalEnergy()) {
+					return;
+				}
+				robot.drainEnergy(energyCost);
+
+				int provEnergy = Integer.valueOf(promptCommand.argumentsArray[2]);
+				int draiEnergy = robot.drainEnergy(provEnergy);
+				int submEnergy = (int) (TURN_PHASE.getConfig()
+						.getIntValue(BoardConfig.INT_CONFIG_ENTRY.CHARGE_ROVER_TRANSFER_ENERGY_PERCENT) * draiEnergy
+						* 1.0 / 100);
+
+				int tranEnergy = targetRobot.chargeEnergy(submEnergy);
+				robot.chargeEnergy(tranEnergy);
+
+			});
+
+		});
 
 		return true;
-	}), CHARGING_STATION((p, c) -> {
+	}), CHARGING_STATION((planet, commands) -> {
+
+		planet.getAllAreas().forEach(area -> {
+
+			int numberOfAccessPoints = area.getChargingStations().stream()
+					.collect(Collectors.summingInt(c -> c.getNumberOfAccessPoints()));
+			List<Boolean> accessPoints = new ArrayList<>();
+			for (int i = 0; i < numberOfAccessPoints; ++i) {
+				accessPoints.add(true);
+			}
+
+			List<Robot> areaRobots = new ArrayList<>(area.getRobots());
+			Collections.shuffle(areaRobots);
+			RobotPromptCommandMap chargers = new RobotPromptCommandMap(areaRobots, commands, 3,
+					END_OF_TURN_COMMAND.CHARGING_STATION);
+
+			chargers.forEach(planet, (robot, promptCommand, p, a, coords) -> {
+
+				int energyCost = ENERGY_COST_CALCULATOR.CONST
+						.calculate(BoardConfig.INT_CONFIG_ENTRY.CHARGING_STATION_CONNECTION_ENERGY, null, 0, 0);
+
+				if (energyCost > robot.getTotalEnergy()) {
+					return;
+				}
+
+				int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(), robot.getTotalWeight(),
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+				int drained = robot.drainEnergy(energy);
+				if (drained < energy) {
+					return;
+				}
+
+				if (accessPoints.size() <= 0) {
+					return;
+				}
+
+				if (WeatherEffects.preventedBy(a.getBlizzards())) {
+					return;
+				}
+
+				accessPoints.remove(0);
+				robot.chargeFull();
+
+			});
+
+		});
 
 		return true;
-	}), DISTRIBUTE_ENERGY((p, c) -> {
+	}), DISTRIBUTE_ENERGY((planet, commands) -> {
+
+		new RobotPromptCommandMap(planet.getAllRobots(), commands, 3, END_OF_TURN_COMMAND.DISTRIBUTE_ENERGY)
+				.forEach(planet, (robot, promptCommand, p, area, coords) -> {
+
+					if ("FULL".equals(promptCommand.argumentsArray[0].toUpperCase())) {
+
+						int tranEnergy = (int) (TURN_PHASE.getConfig()
+								.getIntValue(BoardConfig.INT_CONFIG_ENTRY.DISTRIBUTE_ENERGY_TRANSFER_PERCENT)
+								* robot.getTotalEnergy() * 1.0 / 100);
+						robot.drainAllEnergy();
+						List<Battery> batteries = robot.getNotNullBatteries();
+						for (int i = 0; i < batteries.size(); ++i) {
+							if (tranEnergy <= 0) {
+								break;
+							}
+							if (tranEnergy >= batteries.get(i).getCapacity()) {
+								batteries.get(i).chargeFull();
+								tranEnergy -= batteries.get(i).getEnergy();
+							} else {
+								batteries.get(i).charge(tranEnergy);
+								tranEnergy = 0;
+							}
+						}
+
+					} else if ("EVEN".equals(promptCommand.argumentsArray[0].toUpperCase())) {
+
+						int tranEnergy = (int) (TURN_PHASE.getConfig()
+								.getIntValue(BoardConfig.INT_CONFIG_ENTRY.DISTRIBUTE_ENERGY_TRANSFER_PERCENT)
+								* robot.getTotalEnergy() * 1.0 / 100);
+						robot.drainAllEnergy();
+						for (int i = 0; i < tranEnergy; ++i) {
+							robot.chargeEnergy(1);
+						}
+
+					}
+
+				});
 
 		return true;
 	}), LOAD_CARGO_TO_MOTHER_SHIP((p, c) -> {

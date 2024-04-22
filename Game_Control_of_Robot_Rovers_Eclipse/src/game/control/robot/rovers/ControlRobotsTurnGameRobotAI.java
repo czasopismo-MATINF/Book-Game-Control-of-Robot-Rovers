@@ -54,6 +54,18 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 				String.format(END_OF_TURN_COMMAND.MARKER_OVERWRITE.messageFormat, markerId, newMarker), this);
 	}
 
+	protected void charge_rover(int roverId, int energy) {
+		this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.CHARGE_ROVER.messageFormat, roverId, energy), this);
+	}
+
+	protected void charging_station() {
+		this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.CHARGING_STATION.messageFormat), this);
+	}
+
+	protected void distribute_energy(String param) {
+		this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.DISTRIBUTE_ENERGY.messageFormat, param), this);
+	}
+
 	protected int i = 0;
 
 	public Boolean call() {
@@ -64,65 +76,20 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 
 		Random random = new Random(System.currentTimeMillis());
 
-		switch (random.nextInt() % 2) {
+		switch (random.nextInt() % 4) {
 
 		case 0:
-			int begin = random.nextInt(0, 20);
-			int end = random.nextInt(0, 20);
-			if (begin <= end)
-				this.marker_new("ABCDEFGHIJKLMNOPRSTUWYZ".substring(begin, end));
-			break;
+			this.charge_rover(random.nextInt() % 3, 10);
 		case 1:
-			begin = random.nextInt(0, 20);
-			end = random.nextInt(0, 20);
-			if (begin <= end)
-				this.marker_overwrite(random.nextInt(-10, 10), "ABCDEFGHIJKLMNOPRSTUWYZ".substring(begin, end));
+			this.charging_station();
 			break;
-
+		case 2:
+			distribute_energy("full");
+			break;
+		case 3:
+			distribute_energy("even");
+			break;
 		}
-
-//		switch (random.nextInt() % 6) {
-//		case 0: {
-//			this.drop_battery(random.nextInt() % 15);
-//		}
-//			break;
-//		case 1: {
-//			this.drop_cargo();
-//		}
-//			break;
-//		case 2: {
-//			switch (random.nextInt() % 4) {
-//			case 0: {
-//				this.move('E');
-//			}
-//				break;
-//			case 1: {
-//				this.move('S');
-//			}
-//				break;
-//			case 2: {
-//				this.move('W');
-//			}
-//				break;
-//			case 3: {
-//				this.move('N');
-//			}
-//				break;
-//			}
-//		}
-//			break;
-//		case 3: {
-//			this.collect_battery_to_cargo(random.nextInt(2));
-//		}
-//			break;
-//		case 4: {
-//			this.collect_battery_to_slot(random.nextInt(2));
-//		}
-//		case 5: {
-//			this.collect_rocks(5);
-//		}
-//
-//		}
 
 		return true;
 
