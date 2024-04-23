@@ -77,6 +77,18 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 	protected String check_gps() {
 		return this.gameShell.runCommand(String.format(MESSAGE_COMMAND.CHECK_GPS.messageFormat), this);
 	}
+	
+	protected String load_cargo_to_mother_ship() {
+		return this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.LOAD_CARGO_TO_MOTHER_SHIP.messageFormat), this);
+	}
+
+	protected String enter_mother_ship() {
+		return this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.ENTER_MOTHER_SHIP.messageFormat), this);
+	}
+	
+	protected String launch() {
+		return this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.LAUNCH.messageFormat), this);
+	}
 
 	protected int i = 0;
 
@@ -86,9 +98,11 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 		 * SINGLE TURN LOGIC FOR YOUR ROBOTS
 		 */
 
+		++i;
+		
 		Random random = new Random(System.currentTimeMillis());
 
-		switch (random.nextInt() % 3) {
+		switch (random.nextInt() % (i/5)) {
 
 		case 0:
 			System.out.println(this.look_around());
@@ -98,6 +112,18 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 			break;
 		case 2:
 			System.out.println(this.check_gps());
+			break;
+		case 3:
+			this.collect_rocks(10);
+			break;
+		case 4:
+			this.load_cargo_to_mother_ship();
+			break;
+		case 5:
+			this.enter_mother_ship();
+			break;
+		case 6:
+			launch();
 			break;
 			
 		}

@@ -33,6 +33,10 @@ public class Cargo implements Serializable {
 		this.rocks += rocks;
 
 	}
+	
+	public void addBatteries(List<Battery> batteries) {
+		this.batteriesInCargo.addAll(batteries);
+	}
 
 	public List<Battery> getBatteriesInCargo() {
 

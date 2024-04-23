@@ -57,6 +57,10 @@ public class MaxLoadCargo implements Serializable {
 	public int getRocks() {
 		return rocks;
 	}
+	
+	public void setRocks(int rocks) {
+		this.rocks = rocks;
+	}
 
 	public void releaseCargo() {
 		this.batteriesInCargo = new ArrayList<>();

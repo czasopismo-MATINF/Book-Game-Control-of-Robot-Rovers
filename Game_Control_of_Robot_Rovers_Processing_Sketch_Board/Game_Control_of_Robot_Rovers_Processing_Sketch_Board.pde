@@ -10,6 +10,8 @@ import java.lang.InterruptedException;
 
 import java.awt.Toolkit;
 
+import java.util.stream.Collectors;
+
 import game.control.robot.rovers.board.*;
 import game.control.robot.rovers.*;
 
@@ -187,7 +189,6 @@ void keyPressed() {
 String filePath =  "planet ... file ... path";
 
 /**********/
-
 /*
 void setup() {
 
@@ -210,7 +211,6 @@ void draw() {
   
 }
 */
-
 /**********/
 
 ControlRobotTurnGameBoardAndCommands game;
@@ -229,8 +229,16 @@ Future<Boolean> gameResult;
 void printFinishScreen() {
   
   //background(0,0,0);
+  fill(0, 0, 0);
   textSize(128);
-  text("The End", 40, 120);
+  text("THE END", 40, 120);
+  MotherShip motherShip = planet.getMotherShip();
+  textSize(15);
+  text(String.format("rocks in the cargo of the Mother Ship: %d", motherShip.getCargo().getRocks()), 40, 140);
+  text(String.format("batteries in the cargo of the Mother Ship: %d", motherShip.getCargo().getBatteriesInCargo().size()), 40, 160);
+  text(String.format("rovers in the Mother Ship: %d", motherShip.getRobots().size()), 40, 180);
+  text(String.format("rocks in the cargos of rovers: %d", motherShip.getRobots().stream().collect(Collectors.summingInt(r -> r.getCargo().getRocks()))), 40, 200);
+  text(String.format("batteries in the cargos of rovers: %d", motherShip.getRobots().stream().collect(Collectors.summingInt(r -> r.getCargo().getBatteriesInCargo().size()))), 40, 220);
   
 }
 

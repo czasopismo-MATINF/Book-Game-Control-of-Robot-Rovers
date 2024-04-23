@@ -16,11 +16,17 @@ public enum CREATE_COMMAND {
 		p.resetPlanet(width, height);
 
 		return true;
-	}), ADD_MOTHER_SHIP("addMotherShip", "add mother ship : %d %d", 2, (p, c) -> {
+	}), ADD_MOTHER_SHIP("addMotherShip", "add mother ship : %d %d %s", 3, (p, c) -> {
 
 		GPSCoordinates gpsCoords = CREATE_COMMAND.getCoords(c, p);
 
 		MotherShip motherShip = p.extractMotherShip();
+		
+		if(String.valueOf(c.argumentsArray[2]).equals("new")) {
+			motherShip = new MotherShip(
+					CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.MOTHER_SHIP_MAX_LOAD));
+		}
+		
 		if (motherShip == null) {
 			motherShip = new MotherShip(
 					CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.MOTHER_SHIP_MAX_LOAD));

@@ -706,8 +706,50 @@ public enum TURN_PHASE {
 				});
 
 		return true;
-	}), LOAD_CARGO_TO_MOTHER_SHIP((p, c) -> {
+	}), LOAD_CARGO_TO_MOTHER_SHIP((planet, commands) -> {
 
+		planet.getAllAreas().forEach(area -> {
+			
+			new RobotPromptCommandMap(area.getRobots(), commands, 3, END_OF_TURN_COMMAND.LOAD_CARGO_TO_MOTHER_SHIP)
+			.forEach(planet, (robot, promptCommand, p, a, coords) -> {
+			
+				int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(), robot.getTotalWeight(),
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+				int drained = robot.drainEnergy(energy);
+				if (drained < energy) {
+					return;
+				}
+				
+				if(!area.hasMotherShip()) {
+					return;
+				}
+				
+				int energyCost = ENERGY_COST_CALCULATOR.CONST
+						.calculate(BoardConfig.INT_CONFIG_ENTRY.LOAD_CARGO_TO_MOTHER_SHIP_ENERGY, null, 0, 0);
+				if(energyCost > robot.getTotalEnergy()) {
+					return;
+				}
+				robot.drainEnergy(energyCost);
+				
+				int rocks = robot.getCargo().getRocks();
+				List<Battery> batteries = robot.getCargo().getBatteriesInCargo();
+				
+				MotherShip motherShip = area.getMotherShip();
+				
+				if (WeatherEffects.preventedBy(a.getBlizzards())) {
+					area.addBatteriesAndRocks(batteries, rocks);
+				} else {
+					motherShip.getCargo().addRock(rocks);
+					motherShip.getCargo().addBatteries(batteries);
+				}
+				
+			});
+			
+		});
+
+		
 		return true;
 	}), MOVE((p, c) -> {
 
@@ -721,14 +763,106 @@ public enum TURN_PHASE {
 
 		return true;
 
-	}), ENTER_MOTHER_SHIP((p, c) -> {
+	}), ENTER_MOTHER_SHIP((planet, commands) -> {
 
+		planet.getAllAreas().forEach(area -> {
+			
+			new RobotPromptCommandMap(area.getRobots(), commands, 4, END_OF_TURN_COMMAND.ENTER_MOTHER_SHIP)
+			.forEach(planet, (robot, promptCommand, p, a, coords) -> {
+			
+				int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(), robot.getTotalWeight(),
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+				int drained = robot.drainEnergy(energy);
+				if (drained < energy) {
+					return;
+				}
+				
+				if(!area.hasMotherShip()) {
+					return;
+				}
+				
+				int energyCost = ENERGY_COST_CALCULATOR.CONST
+						.calculate(BoardConfig.INT_CONFIG_ENTRY.ENTER_MOTHER_SHIP_ENERGY, null, 0, 0);
+				if(energyCost > robot.getTotalEnergy()) {
+					return;
+				}
+				robot.drainEnergy(energyCost);
+				
+				MotherShip motherShip = area.getMotherShip();
+				
+				if (!WeatherEffects.preventedBy(a.getBlizzards())) {
+					area.getRobots().remove(robot);
+					motherShip.getRobots().add(robot);
+				}
+				
+			});
+			
+		});
+		
 		return true;
-	}), EXIT_MOTHER_SHIP((p, c) -> {
+	}), LAUNCH((planet, commands) -> {
+		
+		{
+			
+			MotherShip motherShip = planet.getMotherShip();
+		
+			if(motherShip != null) {
+	
+				new RobotPromptCommandMap(motherShip.getRobots(), commands, 5, END_OF_TURN_COMMAND.LAUNCH)
+				.forEach(planet, (robot, promptCommand, p, a, coords) -> {
+					
+					int energyCost = ENERGY_COST_CALCULATOR.CONST
+							.calculate(BoardConfig.INT_CONFIG_ENTRY.LAUNCH_MOTHER_SHIP_INSIDE_ENERGY, null, 0, 0);
+					if(energyCost > robot.getTotalEnergy()) {
+						return;
+					}
+					robot.drainEnergy(energyCost);
+	
+					motherShip.launch();
+					
+				});
+				
+			}
+		
+		}
 
-		return true;
-	}), LAUNCH((p, c) -> {
-
+		planet.getAllAreas().forEach(area -> {
+			
+			new RobotPromptCommandMap(area.getRobots(), commands, 5, END_OF_TURN_COMMAND.LAUNCH)
+			.forEach(planet, (robot, promptCommand, p, a, coords) -> {
+			
+				int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(), robot.getTotalWeight(),
+						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+				int drained = robot.drainEnergy(energy);
+				if (drained < energy) {
+					return;
+				}
+				
+				if(!area.hasMotherShip()) {
+					return;
+				}
+				
+				int energyCost = ENERGY_COST_CALCULATOR.CONST
+						.calculate(BoardConfig.INT_CONFIG_ENTRY.LAUNCH_MOTHER_SHIP_OUTSIDE_ENERGY, null, 0, 0);
+				if(energyCost > robot.getTotalEnergy()) {
+					return;
+				}
+				robot.drainEnergy(energyCost);
+				
+				MotherShip motherShip = area.getMotherShip();
+				
+				if (!WeatherEffects.preventedBy(a.getBlizzards())) {
+					motherShip.launch();
+				}
+				
+			});
+			
+		});
+		
 		return true;
 	});
 
