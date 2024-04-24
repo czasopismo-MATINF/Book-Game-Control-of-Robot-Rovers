@@ -53,11 +53,13 @@ public class ControlRobotTurnGameConcurrentShell implements Callable<Boolean> {
 
 		try {
 
+//			return this.game.runMessageCommand(MESSAGE_COMMAND.valueOf(promptCommand.underscoreCasedKeyWords),
+//					MESSAGE_COMMAND.MODE.CONCURRENT, promptCommand, currentRobot);
 			return this.game.runMessageCommand(MESSAGE_COMMAND.valueOf(promptCommand.underscoreCasedKeyWords),
-					MESSAGE_COMMAND.MODE.CONCURRENT, promptCommand, currentRobot);
+					MESSAGE_COMMAND.MODE.CONCURRENT, promptCommand, currentRobot, robotAIs);
 
 		} catch (IllegalArgumentException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 
 		try {
@@ -67,7 +69,7 @@ public class ControlRobotTurnGameConcurrentShell implements Callable<Boolean> {
 			return null;
 
 		} catch (IllegalArgumentException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 
 		return null;

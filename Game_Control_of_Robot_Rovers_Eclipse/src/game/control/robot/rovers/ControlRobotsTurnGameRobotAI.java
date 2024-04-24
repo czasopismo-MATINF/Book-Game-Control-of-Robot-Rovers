@@ -7,12 +7,16 @@ import game.control.robot.rovers.actions.MESSAGE_COMMAND;
 import game.control.robot.rovers.config.*;
 
 import java.util.Random;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 
 	protected BoardConfig config = new GameConfig();
 
 	protected ControlRobotTurnGameConcurrentShell gameShell;
+
+	public BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
 
 	public ControlRobotsTurnGameRobotAI(ControlRobotTurnGameConcurrentShell gameShell) {
 		super();
@@ -77,17 +81,29 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 	protected String check_gps() {
 		return this.gameShell.runCommand(String.format(MESSAGE_COMMAND.CHECK_GPS.messageFormat), this);
 	}
-	
+
 	protected String load_cargo_to_mother_ship() {
-		return this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.LOAD_CARGO_TO_MOTHER_SHIP.messageFormat), this);
+		return this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.LOAD_CARGO_TO_MOTHER_SHIP.messageFormat),
+				this);
 	}
 
 	protected String enter_mother_ship() {
 		return this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.ENTER_MOTHER_SHIP.messageFormat), this);
 	}
-	
+
 	protected String launch() {
 		return this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.LAUNCH.messageFormat), this);
+	}
+
+	protected void send_message(char direction, String message, int power) {
+		this.gameShell.runCommand(String.format(MESSAGE_COMMAND.SEND_MESSAGE.messageFormat, direction, message, power),
+				this);
+	}
+
+	protected void send_gps_message(int longitude, int latitude, String message, int power) {
+		this.gameShell.runCommand(
+				String.format(MESSAGE_COMMAND.SEND_GPS_MESSAGE.messageFormat, longitude, latitude, message, power),
+				this);
 	}
 
 	public Boolean call() {
@@ -98,14 +114,22 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 
 		Random random = new Random(System.currentTimeMillis());
 
-//		try {
-//			Thread.sleep(1000);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		this.move("ESWN".charAt(random.nextInt(0,4)));
+		String msg = this.messageQueue.poll();
+		if(msg != null) {
+			System.out.println(msg);
+		}
+		
+		this.send_message('C', "hello", 30);
+		this.send_gps_message(5, 0, "hello_gps", 10);
+		
+		this.move("ESWN".charAt(random.nextInt(0, 4)));
 
 		return true;
 

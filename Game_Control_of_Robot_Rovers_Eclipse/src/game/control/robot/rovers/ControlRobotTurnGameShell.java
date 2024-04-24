@@ -79,19 +79,19 @@ public class ControlRobotTurnGameShell {
 		try {
 
 			return this.game.runMessageCommand(MESSAGE_COMMAND.valueOf(promptCommand.underscoreCasedKeyWords),
-					MESSAGE_COMMAND.MODE.PROMPT, promptCommand, currentRobot);
+					MESSAGE_COMMAND.MODE.PROMPT, promptCommand, currentRobot, null);
 
 		} catch (IllegalArgumentException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 
 		try {
 
-			this.game.runEndOfTurnCommand(END_OF_TURN_COMMAND.valueOf(promptCommand.underscoreCasedKeyWords), promptCommand,
-					currentRobot);
+			this.game.runEndOfTurnCommand(END_OF_TURN_COMMAND.valueOf(promptCommand.underscoreCasedKeyWords),
+					promptCommand, currentRobot);
 
 		} catch (IllegalArgumentException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 
 		try {
@@ -100,7 +100,7 @@ public class ControlRobotTurnGameShell {
 					promptCommand);
 
 		} catch (IllegalArgumentException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 
 		try {
@@ -110,13 +110,12 @@ public class ControlRobotTurnGameShell {
 			return this.game.runCreateCommand(command, promptCommand);
 
 		} catch (IllegalArgumentException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
-		
+
 		try {
 
-			return this.game.runTurnCommitCommand(
-					TURN_COMMIT_COMMAND.valueOf(promptCommand.underscoreCasedKeyWords),
+			return this.game.runTurnCommitCommand(TURN_COMMIT_COMMAND.valueOf(promptCommand.underscoreCasedKeyWords),
 					promptCommand);
 
 		} catch (IllegalArgumentException e) {
@@ -150,12 +149,12 @@ public class ControlRobotTurnGameShell {
 				this.loadBoard(command);
 				return null;
 			}
-			
+
 			case "s": {
 				this.saveBoard(new PromptCommand("save board : board.in"));
 				return null;
 			}
-			
+
 			case "l": {
 				this.loadBoard(new PromptCommand("load board : board.in"));
 				return null;

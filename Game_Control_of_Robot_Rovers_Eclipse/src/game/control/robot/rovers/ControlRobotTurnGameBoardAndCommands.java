@@ -88,11 +88,12 @@ public class ControlRobotTurnGameBoardAndCommands {
 	/********************/
 
 	public String runMessageCommand(MESSAGE_COMMAND command, MESSAGE_COMMAND.MODE mode, PromptCommand promptCommand,
-			int currentRobot) {
+			int currentRobot, Map<Integer, ControlRobotsTurnGameRobotAI> robotAIs) {
 
-		Map.Entry<Planet, Integer> e1 = Map.entry(this.getPlanet(), currentRobot);
-		Map.Entry<PromptCommand, MESSAGE_COMMAND.MODE> e2 = Map.entry(promptCommand, mode);
-		return command.action.apply(e1, e2);
+//		Map.Entry<Planet, Integer> e1 = Map.entry(this.getPlanet(), currentRobot);
+//		Map.Entry<PromptCommand, MESSAGE_COMMAND.MODE> e2 = Map.entry(promptCommand, mode);
+		//return command.action.apply(this.getPlanet(), currentRobot, promptCommand, mode, robotAIs);
+		return command.action.apply(planet, currentRobot, promptCommand, mode, robotAIs);
 
 	}
 

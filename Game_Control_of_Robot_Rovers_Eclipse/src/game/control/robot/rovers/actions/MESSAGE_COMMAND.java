@@ -1,5 +1,6 @@
 package game.control.robot.rovers.actions;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -7,10 +8,13 @@ import java.util.stream.Collectors;
 import game.control.robot.rovers.board.Planet;
 import game.control.robot.rovers.board.GPSCoordinates;
 import game.control.robot.rovers.board.Robot;
+import game.control.robot.rovers.ControlRobotsTurnGameRobotAI;
 import game.control.robot.rovers.board.Area;
 import game.control.robot.rovers.board.Battery;
+import game.control.robot.rovers.board.Blizzard;
 import game.control.robot.rovers.command.PromptCommand;
 import game.control.robot.rovers.config.BoardConfig;
+import java.util.Random;
 
 class ToString {
 
@@ -113,21 +117,217 @@ class ToString {
 
 }
 
+class WeatherEffects2 {
+
+	protected static String characters = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890-=!@#$%^&*()_+/'][;.,?\"}{:><";
+
+	protected static Character randomCharacter() {
+		Random random = new Random(System.currentTimeMillis());
+		return WeatherEffects2.characters.charAt(random.nextInt(0, WeatherEffects2.characters.length()));
+	}
+
+	public static Character transferCharacter(Character c, List<Blizzard> blizzards, int power) {
+		Character ret = c;
+		Random random = new Random(System.currentTimeMillis());
+		boolean success = true;
+		for (Blizzard b : blizzards) {
+			if (random.nextInt(0, (int) ((1.0 / ((double) power)) * b.getVolume())) >= 1) {
+				success = false;
+			}
+		}
+		if (!success) {
+			ret = WeatherEffects2.randomCharacter();
+		}
+		return ret;
+	}
+
+}
+
 public enum MESSAGE_COMMAND {
 
-	SEND_GPS_MESSAGE("sendGpsMessage", "send gps message : %d %d %s", 3, (e1, e2) -> {
+	SEND_GPS_MESSAGE("sendGpsMessage", "send gps message : %d %d %s power %d", 5,
+			(planet, currentRobotId, promptCommand, mode, robotAIs) -> {
+				Robot robot = planet.getRobot(currentRobotId);
+				if (robot == null) {
+					return null;
+				}
 
-		return null;
-	}), SEND_MESSAGE("sendMessage", "send message : %c %s", 2, (e1, e2) -> {
+				int longitude = Integer.valueOf(promptCommand.argumentsArray[0]);
+				int latitude = Integer.valueOf(promptCommand.argumentsArray[1]);
 
-		return null;
-	}), LOOK_AROUND("lookAround", "look around", 0, (e1, e2) -> {
+				if (!"POWER".equals(String.valueOf(promptCommand.argumentsArray[3]).toUpperCase())) {
+					return null;
+				}
 
-		Planet planet = e1.getKey();
-		Integer currentRobotId = e1.getValue();
-		if (currentRobotId == null || currentRobotId < 0) {
-			return null;
-		}
+				int power = Integer.valueOf(promptCommand.argumentsArray[4]);
+				if (power <= 0) {
+					return null;
+				}
+
+				GPSCoordinates coords = planet.robotGPSCoordinates(currentRobotId);
+				if (coords == null) {
+					return null;
+				}
+
+				Area areaC = planet.getSurface()[coords.getX()][coords.getY()];
+
+				GPSCoordinates targetCoordinates = new GPSCoordinates(longitude, latitude, planet.getWidth(),
+						planet.getHeight());
+
+				Area areaT = null;
+				areaT = planet.getSurface()[targetCoordinates.getX()][targetCoordinates.getY()];
+
+				String message = String.valueOf(promptCommand.argumentsArray[2]);
+
+				StringBuffer messageThroughC = new StringBuffer();
+				for (int i = 0; i < message.length(); ++i) {
+					int drained = robot.drainEnergy(power);
+					if (drained < power) {
+						break;
+					}
+					messageThroughC
+							.append(WeatherEffects2.transferCharacter(message.charAt(i), areaC.getBlizzards(), power));
+				}
+
+				message = messageThroughC.toString();
+
+				StringBuffer output = new StringBuffer();
+				if (areaT != null) {
+
+					for (Robot r : areaT.getRobots()) {
+
+						StringBuffer messageForRobot = new StringBuffer();
+						for (int i = 0; i < message.length(); ++i) {
+							messageForRobot.append(
+									WeatherEffects2.transferCharacter(message.charAt(i), areaT.getBlizzards(), power));
+						}
+
+						if (mode == MODE.PROMPT) {
+							output.append(String.format("robot: %d got message : %s\n", r.getId(),
+									messageForRobot.toString()));
+
+						} else if (mode == MODE.CONCURRENT) {
+							ControlRobotsTurnGameRobotAI targetRobotAI = robotAIs.get(r.getId());
+							if (targetRobotAI != null) {
+								try {
+									targetRobotAI.messageQueue.put(messageForRobot.toString());
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+						}
+
+					}
+
+				}
+
+				return output.toString();
+			}),
+	SEND_MESSAGE("sendMessage", "send message : %c %s power %d", 4,
+			(planet, currentRobotId, promptCommand, mode, robotAIs) -> {
+
+				Robot robot = planet.getRobot(currentRobotId);
+				if (robot == null) {
+					return null;
+				}
+
+				if (!"CESWN".contains(String.valueOf(promptCommand.argumentsArray[0]).toUpperCase())) {
+					return null;
+				}
+
+				if (!"POWER".equals(String.valueOf(promptCommand.argumentsArray[2]).toUpperCase())) {
+					return null;
+				}
+
+				int power = Integer.valueOf(promptCommand.argumentsArray[3]);
+				if (power <= 0) {
+					return null;
+				}
+
+				GPSCoordinates coords = planet.robotGPSCoordinates(currentRobotId);
+				if (coords == null) {
+					return null;
+				}
+
+				Area areaC = planet.getSurface()[coords.getX()][coords.getY()];
+
+				GPSCoordinates targetCoordinates = null;
+				switch (String.valueOf(promptCommand.argumentsArray[0]).toUpperCase()) {
+				case "E":
+					targetCoordinates = coords.getE();
+					break;
+				case "S":
+					targetCoordinates = coords.getS();
+					break;
+				case "W":
+					targetCoordinates = coords.getW();
+					break;
+				case "N":
+					targetCoordinates = coords.getN();
+					break;
+				case "C":
+					targetCoordinates = coords;
+					break;
+				}
+
+				Area areaT = null;
+				if (targetCoordinates != null) {
+					areaT = planet.getSurface()[targetCoordinates.getX()][targetCoordinates.getY()];
+				}
+
+				String message = String.valueOf(promptCommand.argumentsArray[1]);
+
+				StringBuffer messageThroughC = new StringBuffer();
+				for (int i = 0; i < message.length(); ++i) {
+					int drained = robot.drainEnergy(power);
+					if (drained < power) {
+						break;
+					}
+					messageThroughC
+							.append(WeatherEffects2.transferCharacter(message.charAt(i), areaC.getBlizzards(), power));
+				}
+
+				message = messageThroughC.toString();
+
+				StringBuffer output = new StringBuffer();
+				if (areaT != null) {
+
+					for (Robot r : areaT.getRobots()) {
+
+						if (robot == r) {
+							continue;
+						}
+
+						StringBuffer messageForRobot = new StringBuffer();
+						for (int i = 0; i < message.length(); ++i) {
+							messageForRobot.append(
+									WeatherEffects2.transferCharacter(message.charAt(i), areaT.getBlizzards(), power));
+						}
+
+						if (mode == MODE.PROMPT) {
+							output.append(String.format("robot: %d got message : %s\n", r.getId(),
+									messageForRobot.toString()));
+
+						} else if (mode == MODE.CONCURRENT) {
+							ControlRobotsTurnGameRobotAI targetRobotAI = robotAIs.get(r.getId());
+							if (targetRobotAI != null) {
+								try {
+									targetRobotAI.messageQueue.put(messageForRobot.toString());
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+						}
+
+					}
+
+				}
+
+				return output.toString();
+			}),
+	LOOK_AROUND("lookAround", "look around", 0, (planet, currentRobotId, promptCommand, mode, robotAIs) -> {
 
 		Robot currentRobot = planet.getRobot(currentRobotId);
 		if (currentRobot == null) {
@@ -150,13 +350,7 @@ public enum MESSAGE_COMMAND {
 
 		return ToString.toString(planet, area);
 
-	}), CHECK_SELF("checkSelf", "check self", 0, (e1, e2) -> {
-
-		Planet planet = e1.getKey();
-		Integer currentRobotId = e1.getValue();
-		if (currentRobotId == null || currentRobotId < 0) {
-			return null;
-		}
+	}), CHECK_SELF("checkSelf", "check self", 0, (planet, currentRobotId, promptCommand, mode, robotAIs) -> {
 
 		Robot currentRobot = planet.getRobot(currentRobotId);
 		if (currentRobot == null) {
@@ -165,10 +359,8 @@ public enum MESSAGE_COMMAND {
 
 		return ToString.toString(currentRobot);
 
-	}), CHECK_GPS("checkGps", "check gps", 0, (e1, e2) -> {
+	}), CHECK_GPS("checkGps", "check gps", 0, (planet, currentRobotId, promptCommand, mode, robotAIs) -> {
 
-		Planet planet = e1.getKey();
-		Integer currentRobotId = e1.getValue();
 		if (currentRobotId == null || currentRobotId < 0) {
 			return null;
 		}
@@ -191,10 +383,18 @@ public enum MESSAGE_COMMAND {
 	public final String camelCasedName;
 	public final String messageFormat;
 	public final int numberOfArguments;
-	public final BiFunction<Map.Entry<Planet, Integer>, Map.Entry<PromptCommand, MODE>, String> action;
+
+	// public final BiFunction<Map.Entry<Planet, Integer>, Map.Entry<PromptCommand,
+	// MODE>, String> action;
+	@FunctionalInterface
+	public interface F5<A, B, C, D, E, F> {
+		public F apply(A a, B b, C c, D d, E e);
+	}
+
+	public final F5<Planet, Integer, PromptCommand, MODE, Map<Integer, ControlRobotsTurnGameRobotAI>, String> action;
 
 	private MESSAGE_COMMAND(String camelCasedName, String messageFormat, int numberOfArguments,
-			BiFunction<Map.Entry<Planet, Integer>, Map.Entry<PromptCommand, MODE>, String> action) {
+			F5<Planet, Integer, PromptCommand, MODE, Map<Integer, ControlRobotsTurnGameRobotAI>, String> action) {
 		this.camelCasedName = camelCasedName;
 		this.messageFormat = messageFormat.replaceFirst(":", MESSAGE_COMMAND.MESSAGE_SEPARATOR);
 		this.numberOfArguments = numberOfArguments;
