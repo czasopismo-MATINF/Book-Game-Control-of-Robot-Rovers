@@ -146,17 +146,29 @@ public class ControlRobotTurnGameBoardAndCommands {
 			StringBuffer buffer = new StringBuffer("THE END:\n");
 
 			buffer.append(
-					String.format("rocks in the cargo of the Mother Ship: %d\n", motherShip.getCargo().getRocks()));
-			buffer.append(String.format("batteries in the cargo of the Mother Ship: %d\n",
+					String.format("rocks in the cargo of the Mother-Ship: %d\n", motherShip.getCargo().getRocks()));
+			buffer.append(String.format("batteries in the cargo of the Mother-Ship: %d\n",
 					motherShip.getCargo().getBatteriesInCargo().size()));
-			buffer.append(String.format("rovers in the Mother Ship: %d\n", motherShip.getRobots().size()));
+			buffer.append(String.format("rovers in the Mother-Ship: %d\n", motherShip.getRobots().size()));
 			buffer.append(String.format("rocks in the cargos of rovers: %d\n",
 					motherShip.getRobots().stream().collect(Collectors.summingInt(r -> r.getCargo().getRocks()))));
 			buffer.append(String.format("batteries in the cargos of rovers: %d\n", motherShip.getRobots().stream()
 					.collect(Collectors.summingInt(r -> r.getCargo().getBatteriesInCargo().size()))));
-
+			buffer.append(String.format("rovers on planet total remaining energy: %d\n",
+					planet.getAllRobots().stream().collect(Collectors.summingInt(r -> r.getTotalEnergy()))));
+			
 			return buffer.toString();
 
+		} else {
+			
+			StringBuffer buffer = new StringBuffer("THE END:\n");
+
+			buffer.append(String.format("no Mother-Ship found\n"));
+			buffer.append(String.format("rovers on planet total remaining energy: %d\n",
+					planet.getAllRobots().stream().collect(Collectors.summingInt(r -> r.getTotalEnergy()))));
+			
+			buffer.toString();
+			
 		}
 
 		return null;

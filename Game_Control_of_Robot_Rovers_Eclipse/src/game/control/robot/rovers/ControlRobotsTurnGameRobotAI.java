@@ -90,43 +90,22 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 		return this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.LAUNCH.messageFormat), this);
 	}
 
-	protected int i = 0;
-
 	public Boolean call() {
 
 		/*
 		 * SINGLE TURN LOGIC FOR YOUR ROBOTS
 		 */
 
-		++i;
-		
 		Random random = new Random(System.currentTimeMillis());
 
-		switch (random.nextInt() % (i/5)) {
-
-		case 0:
-			System.out.println(this.look_around());
-			break;
-		case 1:
-			System.out.println(this.check_self());
-			break;
-		case 2:
-			System.out.println(this.check_gps());
-			break;
-		case 3:
-			this.collect_rocks(10);
-			break;
-		case 4:
-			this.load_cargo_to_mother_ship();
-			break;
-		case 5:
-			this.enter_mother_ship();
-			break;
-		case 6:
-			launch();
-			break;
-			
-		}
+//		try {
+//			Thread.sleep(1000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+		this.move("ESWN".charAt(random.nextInt(0,4)));
 
 		return true;
 

@@ -184,6 +184,29 @@ void keyPressed() {
   
 }
 
+void printFinishScreen() {
+  
+  //background(0,0,0);
+  fill(0, 0, 0);
+  textSize(128);
+  text("THE END", 40, 120);
+  MotherShip motherShip = planet.getMotherShip();
+  if(motherShip != null) {
+    textSize(15);
+    text(String.format("rocks in the cargo of the Mother-Ship: %d", motherShip.getCargo().getRocks()), 40, 140);
+    text(String.format("batteries in the cargo of the Mother-Ship: %d", motherShip.getCargo().getBatteriesInCargo().size()), 40, 160);
+    text(String.format("rovers in the Mother-Ship: %d", motherShip.getRobots().size()), 40, 180);
+    text(String.format("rocks in the cargos of rovers: %d", motherShip.getRobots().stream().collect(Collectors.summingInt(r -> r.getCargo().getRocks()))), 40, 200);
+    text(String.format("batteries in the cargos of rovers: %d", motherShip.getRobots().stream().collect(Collectors.summingInt(r -> r.getCargo().getBatteriesInCargo().size()))), 40, 220);
+    text(String.format("rovers on planet energy: %d", planet.getAllRobots().stream().collect(Collectors.summingInt(r -> r.getTotalEnergy()))), 40, 240);
+  } else {
+    textSize(15);
+    text(String.format("no Mother-Ship found"), 40, 140);
+    text(String.format("rovers on planet total remaining energy: %d", planet.getAllRobots().stream().collect(Collectors.summingInt(r -> r.getTotalEnergy()))), 40, 160);
+  }
+  
+}
+
 /**********/
 
 String filePath =  "planet ... file ... path";
@@ -224,22 +247,6 @@ Future<Boolean> gameResult;
   gameShell = new ControlRobotTurnGameConcurrentShell(game);
   shellThreadPool = Executors.newFixedThreadPool(1);
   planet = game.getPlanet();
-}
-
-void printFinishScreen() {
-  
-  //background(0,0,0);
-  fill(0, 0, 0);
-  textSize(128);
-  text("THE END", 40, 120);
-  MotherShip motherShip = planet.getMotherShip();
-  textSize(15);
-  text(String.format("rocks in the cargo of the Mother Ship: %d", motherShip.getCargo().getRocks()), 40, 140);
-  text(String.format("batteries in the cargo of the Mother Ship: %d", motherShip.getCargo().getBatteriesInCargo().size()), 40, 160);
-  text(String.format("rovers in the Mother Ship: %d", motherShip.getRobots().size()), 40, 180);
-  text(String.format("rocks in the cargos of rovers: %d", motherShip.getRobots().stream().collect(Collectors.summingInt(r -> r.getCargo().getRocks()))), 40, 200);
-  text(String.format("batteries in the cargos of rovers: %d", motherShip.getRobots().stream().collect(Collectors.summingInt(r -> r.getCargo().getBatteriesInCargo().size()))), 40, 220);
-  
 }
 
 void setup() {
