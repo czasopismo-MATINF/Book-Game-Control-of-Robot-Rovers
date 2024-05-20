@@ -1,7 +1,8 @@
-package game.control.robot.rovers;
+package game.control.robot.rovers.main;
 
 import java.util.Scanner;
 
+import game.control.robot.rovers.ControlRobotTurnGameShell;
 import game.control.robot.rovers.prompt.*;
 
 public class Main {
@@ -19,7 +20,7 @@ public class Main {
 				this.promptPrinter.print(PromptPrinterInterface.COMMAND_LINE_PROMPT);
 				String commandLine = scanner.nextLine();
 
-				if ("exit".equals(commandLine)) {
+				if ("exit".toUpperCase().equals(commandLine.toUpperCase())) {
 					this.promptPrinter.println("EXIT");
 					System.exit(0);
 				}
