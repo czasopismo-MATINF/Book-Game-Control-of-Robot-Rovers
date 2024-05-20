@@ -2,8 +2,8 @@ package game.control.robot.rovers.board;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.io.Serializable;
 
 public class Area implements Serializable {
 
@@ -12,14 +12,14 @@ public class Area implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private List<Robot> robots;
-	private List<Battery> batteries;
-	private List<Blizzard> blizzards;
-	private List<ChargingStation> chargingStations;
-	private List<String> markers;
+	protected List<Robot> robots;
+	protected List<Battery> batteries;
+	protected List<Blizzard> blizzards;
+	protected List<ChargingStation> chargingStations;
+	protected List<String> markers;
 
-	private int rocks = 0;
-	private boolean hasChasm = false;
+	protected int rocks = 0;
+	protected boolean hasChasm = false;
 
 	private MotherShip motherShip;
 

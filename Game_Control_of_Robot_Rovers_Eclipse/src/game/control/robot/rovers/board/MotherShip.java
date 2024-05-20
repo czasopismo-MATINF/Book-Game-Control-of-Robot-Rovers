@@ -1,8 +1,8 @@
 package game.control.robot.rovers.board;
 
 import java.util.List;
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.io.Serializable;
 
 public class MotherShip implements Serializable {
 
@@ -11,10 +11,10 @@ public class MotherShip implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private List<Robot> robots = new ArrayList<>();
-	private Cargo cargo = new Cargo();
-	private int maxLoad;
-	private boolean launched = false;
+	protected List<Robot> robots = new ArrayList<>();
+	protected Cargo cargo = new Cargo();
+	protected int maxLoad;
+	protected boolean launched = false;
 
 	public MotherShip(int maxLoad) {
 		super();

@@ -304,9 +304,9 @@ public enum TURN_PHASE {
 							}
 
 							int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
-									BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
-									BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(),
-									robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+									BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MIN_ENERGY,
+									BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(),
+									robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
 							int drained = robot.drainEnergy(energy);
 							if (drained < energy) {
 								return;
@@ -346,9 +346,9 @@ public enum TURN_PHASE {
 							}
 
 							int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
-									BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
-									BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(),
-									robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+									BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MIN_ENERGY,
+									BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(),
+									robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
 							int drained = robot.drainEnergy(energy);
 							if (drained < energy) {
 								return;
@@ -465,9 +465,9 @@ public enum TURN_PHASE {
 			writers.forEach(planet, (robot, promptCommand, p, a, coords) -> {
 
 				int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
-						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
-						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(), robot.getTotalWeight(),
-						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MIN_ENERGY,
+						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(), robot.getTotalWeight(),
+						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
 				int drained = robot.drainEnergy(energy);
 				if (drained < energy) {
 					return;
@@ -520,9 +520,9 @@ public enum TURN_PHASE {
 			writers.forEach(planet, (robot, promptCommand, p, a, coords) -> {
 
 				int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
-						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
-						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(), robot.getTotalWeight(),
-						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MIN_ENERGY,
+						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(), robot.getTotalWeight(),
+						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
 				int drained = robot.drainEnergy(energy);
 				if (drained < energy) {
 					return;
@@ -582,9 +582,9 @@ public enum TURN_PHASE {
 				}
 
 				int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
-						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
-						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(), robot.getTotalWeight(),
-						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MIN_ENERGY,
+						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(), robot.getTotalWeight(),
+						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
 				int drained = robot.drainEnergy(energy);
 				if (drained < energy) {
 					return;
@@ -646,9 +646,9 @@ public enum TURN_PHASE {
 				}
 
 				int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
-						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
-						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(), robot.getTotalWeight(),
-						BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MIN_ENERGY,
+						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(), robot.getTotalWeight(),
+						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
 				int drained = robot.drainEnergy(energy);
 				if (drained < energy) {
 					return;
@@ -718,9 +718,9 @@ public enum TURN_PHASE {
 					.forEach(planet, (robot, promptCommand, p, a, coords) -> {
 
 						int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
-								BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
-								BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(),
-								robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+								BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MIN_ENERGY,
+								BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(),
+								robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
 						int drained = robot.drainEnergy(energy);
 						if (drained < energy) {
 							return;
@@ -745,7 +745,7 @@ public enum TURN_PHASE {
 						if (WeatherEffects.preventedBy(a.getBlizzards())) {
 							area.addBatteriesAndRocks(batteries, rocks);
 						} else {
-							motherShip.getCargo().addRock(rocks);
+							motherShip.getCargo().addRocks(rocks);
 							motherShip.getCargo().addBatteries(batteries);
 						}
 
@@ -766,9 +766,9 @@ public enum TURN_PHASE {
 					}
 
 					int energy = ENERGY_COST_CALCULATOR.REACH_AREA.calculate(
-							BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
-							BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(), robot.getTotalWeight(),
-							BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+							BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MIN_ENERGY,
+							BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(), robot.getTotalWeight(),
+							BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
 					int drained = robot.drainEnergy(energy);
 					if (drained < energy) {
 						return;
@@ -788,9 +788,9 @@ public enum TURN_PHASE {
 					.forEach(planet, (robot, promptCommand, p, a, coords) -> {
 
 						int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
-								BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
-								BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(),
-								robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+								BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MIN_ENERGY,
+								BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(),
+								robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
 						int drained = robot.drainEnergy(energy);
 						if (drained < energy) {
 							return;
@@ -851,9 +851,9 @@ public enum TURN_PHASE {
 					(robot, promptCommand, p, a, coords) -> {
 
 						int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
-								BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MIN,
-								BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_AREA_MAX, a.getBlizzards(),
-								robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROBOT_MOVE_WEIGHT_MULTIPLIER);
+								BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MIN_ENERGY,
+								BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(),
+								robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
 						int drained = robot.drainEnergy(energy);
 						if (drained < energy) {
 							return;

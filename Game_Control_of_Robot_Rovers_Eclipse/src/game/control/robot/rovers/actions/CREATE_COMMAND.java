@@ -40,14 +40,14 @@ public enum CREATE_COMMAND {
 		GPSCoordinates gpsCoords = CREATE_COMMAND.getCoords(c, p);
 
 		Battery[] batteries = new Battery[CREATE_COMMAND.getConfig()
-				.getIntValue(BoardConfig.INT_CONFIG_ENTRY.ROBOT_MAX_BATTERIES)];
+				.getIntValue(BoardConfig.INT_CONFIG_ENTRY.ROVER_MAX_BATTERIES)];
 		for (int i = 0; i < batteries.length; ++i) {
 			batteries[i] = new Battery(
 					CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.BATTERY_CAPACITY),
 					CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.BATTERY_WEIGHT));
 		}
 		p.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getRobots().add(new Robot(
-				CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.ROBOT_CARGO_MAX_LOAD), batteries));
+				CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.ROVER_CARGO_MAX_LOAD), batteries));
 
 		return true;
 	}), ADD_ROBOTS("addRobots", "add robots : %d %d %d", 3, (p, c) -> {
@@ -56,14 +56,14 @@ public enum CREATE_COMMAND {
 
 		for (int i = 0; i < Integer.valueOf(c.argumentsArray[2]); ++i) {
 			Battery[] batteries = new Battery[CREATE_COMMAND.getConfig()
-					.getIntValue(BoardConfig.INT_CONFIG_ENTRY.ROBOT_MAX_BATTERIES)];
+					.getIntValue(BoardConfig.INT_CONFIG_ENTRY.ROVER_MAX_BATTERIES)];
 			for (int j = 0; j < batteries.length; ++j) {
 				batteries[j] = new Battery(
 						CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.BATTERY_CAPACITY),
 						CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.BATTERY_WEIGHT));
 			}
 			p.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getRobots().add(new Robot(
-					CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.ROBOT_CARGO_MAX_LOAD), batteries));
+					CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.ROVER_CARGO_MAX_LOAD), batteries));
 		}
 
 		return true;

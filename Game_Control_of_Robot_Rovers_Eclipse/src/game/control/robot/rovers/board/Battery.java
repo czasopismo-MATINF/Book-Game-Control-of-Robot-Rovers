@@ -9,12 +9,12 @@ public class Battery implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private static Integer MAX_BATTERY_ID = 0;
+	protected static Integer MAX_BATTERY_ID = 0;
 
-	private int id;
-	private int capacity;
-	private int energy;
-	private int weight;
+	protected int id;
+	protected int capacity;
+	protected int energy;
+	protected int weight;
 
 	public Battery(int capacity, int weight) {
 		super();
@@ -62,8 +62,10 @@ public class Battery implements Serializable {
 		}
 	}
 	
-	public void drainAllEnergy() {
+	public int drainAllEnergy() {
+		Integer e = this.getEnergy();
 		this.energy = 0;
+		return e;
 	}
 	
 	public void chargeFull() {

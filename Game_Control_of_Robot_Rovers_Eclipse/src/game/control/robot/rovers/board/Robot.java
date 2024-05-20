@@ -1,10 +1,10 @@
 package game.control.robot.rovers.board;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.io.Serializable;
 
 public class Robot implements Serializable {
 
@@ -13,11 +13,11 @@ public class Robot implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private static int MAX_ROBOT_ID = 0;
+	protected static int MAX_ROBOT_ID = 0;
 
-	private int id;
-	private MaxLoadCargo cargo;
-	private Battery[] batteries;
+	protected int id;
+	protected MaxLoadCargo cargo;
+	protected Battery[] batteries;
 
 	public Robot(int maxLoad, Battery[] batteries) {
 		this.id = ++Robot.MAX_ROBOT_ID;
@@ -103,7 +103,6 @@ public class Robot implements Serializable {
 			chargedBatteries.get(0).drain(1);
 			total += 1;
 		}
-		
 		return total;
 		
 	}

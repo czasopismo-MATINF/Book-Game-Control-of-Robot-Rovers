@@ -341,7 +341,7 @@ public enum MESSAGE_COMMAND {
 
 		Area area = planet.getSurface()[coords.getX()][coords.getY()];
 
-		int energyCost = ENERGY_COST_CALCULATOR.CONST.calculate(BoardConfig.INT_CONFIG_ENTRY.SCANING_ENERGY, null, 0,
+		int energyCost = ENERGY_COST_CALCULATOR.CONST.calculate(BoardConfig.INT_CONFIG_ENTRY.SCAN_ENERGY, null, 0,
 				0);
 		if (energyCost > currentRobot.getTotalEnergy()) {
 			return "N/A: energy\n";

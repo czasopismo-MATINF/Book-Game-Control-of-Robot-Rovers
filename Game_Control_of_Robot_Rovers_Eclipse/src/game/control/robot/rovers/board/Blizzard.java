@@ -9,7 +9,7 @@ public class Blizzard implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private int volume;
+	protected int volume;
 
 	public Blizzard(int volume) {
 		super();

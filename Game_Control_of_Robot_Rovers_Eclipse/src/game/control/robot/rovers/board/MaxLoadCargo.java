@@ -2,8 +2,8 @@ package game.control.robot.rovers.board;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.io.Serializable;
 
 public class MaxLoadCargo implements Serializable {
 
@@ -12,9 +12,9 @@ public class MaxLoadCargo implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private List<Battery> batteriesInCargo = new ArrayList<>();
-	private int rocks;
-	private int maxLoad;
+	protected List<Battery> batteriesInCargo = new ArrayList<>();
+	protected int rocks;
+	protected int maxLoad;
 
 	public MaxLoadCargo(int maxLoad) {
 		super();

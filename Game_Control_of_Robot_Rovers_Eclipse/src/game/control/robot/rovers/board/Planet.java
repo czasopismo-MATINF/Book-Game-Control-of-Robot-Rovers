@@ -1,9 +1,9 @@
 package game.control.robot.rovers.board;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.ArrayList;
+import java.io.Serializable;
 
 public class Planet implements Serializable {
 
@@ -21,8 +21,8 @@ public class Planet implements Serializable {
 		this.width = width;
 		this.height = height;
 		this.surface = new Area[this.width][this.height];
-		for (int i = 0; i < this.width; ++i) {
-			for (int j = 0; j < this.height; ++j) {
+		for (var i = 0; i < this.width; ++i) {
+			for (var j = 0; j < this.height; ++j) {
 				this.surface[i][j] = new Area();
 			}
 		}
@@ -46,8 +46,8 @@ public class Planet implements Serializable {
 	}
 
 	public MotherShip extractMotherShip() {
-		for (int i = 0; i < this.width; ++i) {
-			for (int j = 0; j < this.height; ++j) {
+		for (var i = 0; i < this.width; ++i) {
+			for (var j = 0; j < this.height; ++j) {
 				MotherShip motherShip = this.surface[i][j].getMotherShip();
 				if (motherShip != null) {
 					this.surface[i][j].setMotherShip(null);
@@ -59,8 +59,8 @@ public class Planet implements Serializable {
 	}
 
 	public MotherShip getMotherShip() {
-		for (int i = 0; i < this.width; ++i) {
-			for (int j = 0; j < this.height; ++j) {
+		for (var i = 0; i < this.width; ++i) {
+			for (var j = 0; j < this.height; ++j) {
 				MotherShip motherShip = this.surface[i][j].getMotherShip();
 				if (motherShip != null) {
 					return motherShip;
@@ -96,8 +96,8 @@ public class Planet implements Serializable {
 	public List<Area> getAllAreas() {
 		
 		List<Area> areas = new ArrayList<>();
-		for(int i = 0; i < this.getWidth(); ++i) {
-			for(int j = 0; j < this.getHeight(); ++j) {
+		for(var i = 0; i < this.getWidth(); ++i) {
+			for(var j = 0; j < this.getHeight(); ++j) {
 				areas.add(this.getSurface()[i][j]);
 			}
 		}
