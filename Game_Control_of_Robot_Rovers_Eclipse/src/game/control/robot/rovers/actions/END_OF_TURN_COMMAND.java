@@ -2,13 +2,7 @@ package game.control.robot.rovers.actions;
 
 public enum END_OF_TURN_COMMAND {
 	
-//	SEND_GPS_MESSAGE("sendGpsMessage", "send gps message : %d %d %s", 3),
-//	SEND_MESSAGE("sendMessage", "send message : %c %s", 2),
-//	LOOK_AROUND("lookAround", "look around", 0),
-//	CHECK_SELF("checkSelf", "check self", 0),
-//	CHECK_GPS("checkGps", "check gps", 0),
-	
-	DROP_CARGO("dropCargo", "drop cargo",0),
+	DROP_CARGO("dropCargo", "drop cargo", 0),
 	
 	DROP_BATTERY("dropBattery", "drop battery : %d", 1),
 	COLLECT_BATTERY("collectBattery", "collect battery : %d %s %s", 3),

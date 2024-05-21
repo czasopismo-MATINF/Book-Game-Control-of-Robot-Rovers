@@ -1,7 +1,6 @@
 package game.control.robot.rovers.actions;
 
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import game.control.robot.rovers.board.Planet;
@@ -9,20 +8,24 @@ import game.control.robot.rovers.command.PromptCommand;
 
 public enum STATUS_COMMAND {
 
-	TURN_STATUS("turnStatus", "turn status", 0, (e1, e2) -> {
+	TURN_STATUS("turnStatus", "turn status", 0, (p, cmd, EOTC, cmds) -> {
 
-		return e2.getValue().entrySet().stream()
-				.map(e -> STATUS_COMMAND.buildRobotCommandStatus(e.getKey(), e2.getKey(), e2.getValue()))
+		return cmds.entrySet().stream().map(c -> STATUS_COMMAND.buildRobotCommandStatus(c.getKey(), EOTC, cmds))
 				.collect(Collectors.joining("\n"));
 
 	});
+
+	@FunctionalInterface
+	public static interface F4<A, B, C, D, E> {
+		public E apply(A a, B b, C c, D d);
+	}
 
 	public static final String MESSAGE_SEPARATOR = ":";
 
 	public final String camelCasedName;
 	public final String messageFormat;
 	public final int numberOfArguments;
-	public final BiFunction<Map.Entry<Planet, PromptCommand>, Map.Entry<END_OF_TURN_COMMAND[][], Map<Integer, PromptCommand[]>>, String> action;
+	public final F4<Planet, PromptCommand, END_OF_TURN_COMMAND[][], Map<Integer, PromptCommand[]>, String> action;
 
 	protected static String buildRobotCommandStatus(int robotId,
 			END_OF_TURN_COMMAND[][] END_OF_TURN_ROBOT_COMMANDS_CONFIG,
@@ -46,7 +49,7 @@ public enum STATUS_COMMAND {
 	}
 
 	private STATUS_COMMAND(String camelCasedName, String messageFormat, int numberOfArguments,
-			BiFunction<Map.Entry<Planet, PromptCommand>, Map.Entry<END_OF_TURN_COMMAND[][], Map<Integer, PromptCommand[]>>, String> action) {
+			F4<Planet, PromptCommand, END_OF_TURN_COMMAND[][], Map<Integer, PromptCommand[]>, String> action) {
 		this.camelCasedName = camelCasedName;
 		this.messageFormat = messageFormat.replaceFirst(":", STATUS_COMMAND.MESSAGE_SEPARATOR);
 		this.numberOfArguments = numberOfArguments;

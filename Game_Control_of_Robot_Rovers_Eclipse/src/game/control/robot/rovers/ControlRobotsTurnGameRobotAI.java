@@ -22,11 +22,9 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 		super();
 		this.gameShell = gameShell;
 	}
-
-	protected void move(Character direction) {
-		this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.MOVE.messageFormat, direction), this);
-	}
-
+	
+	/**********/
+	
 	protected void drop_cargo() {
 		this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.DROP_CARGO.messageFormat), this);
 	}
@@ -70,6 +68,25 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 		this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.DISTRIBUTE_ENERGY.messageFormat, param), this);
 	}
 
+	protected String load_cargo_to_mother_ship() {
+		return this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.LOAD_CARGO_TO_MOTHER_SHIP.messageFormat),
+				this);
+	}	
+	
+	protected void move(Character direction) {
+		this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.MOVE.messageFormat, direction), this);
+	}
+	
+	protected String enter_mother_ship() {
+		return this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.ENTER_MOTHER_SHIP.messageFormat), this);
+	}
+	
+	protected String launch() {
+		return this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.LAUNCH.messageFormat), this);
+	}
+	
+	/**********/
+	
 	protected String look_around() {
 		return this.gameShell.runCommand(String.format(MESSAGE_COMMAND.LOOK_AROUND.messageFormat), this);
 	}
@@ -82,19 +99,6 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 		return this.gameShell.runCommand(String.format(MESSAGE_COMMAND.CHECK_GPS.messageFormat), this);
 	}
 
-	protected String load_cargo_to_mother_ship() {
-		return this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.LOAD_CARGO_TO_MOTHER_SHIP.messageFormat),
-				this);
-	}
-
-	protected String enter_mother_ship() {
-		return this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.ENTER_MOTHER_SHIP.messageFormat), this);
-	}
-
-	protected String launch() {
-		return this.gameShell.runCommand(String.format(END_OF_TURN_COMMAND.LAUNCH.messageFormat), this);
-	}
-
 	protected void send_message(char direction, String message, int power) {
 		this.gameShell.runCommand(String.format(MESSAGE_COMMAND.SEND_MESSAGE.messageFormat, direction, message, power),
 				this);
@@ -105,6 +109,8 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 				String.format(MESSAGE_COMMAND.SEND_GPS_MESSAGE.messageFormat, longitude, latitude, message, power),
 				this);
 	}
+	
+	/**********/
 
 	public Boolean call() {
 
@@ -120,15 +126,15 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		String msg = this.messageQueue.poll();
-		if(msg != null) {
+		if (msg != null) {
 			System.out.println(msg);
 		}
-		
+
 		this.send_message('C', "hello", 30);
 		this.send_gps_message(5, 0, "hello_gps", 10);
-		
+
 		this.move("ESWN".charAt(random.nextInt(0, 4)));
 
 		return true;

@@ -1,6 +1,8 @@
 package game.control.robot.rovers;
 
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
 import game.control.robot.rovers.actions.CREATE_COMMAND;
 import game.control.robot.rovers.actions.END_OF_TURN_COMMAND;
@@ -9,12 +11,9 @@ import game.control.robot.rovers.actions.STATUS_COMMAND;
 import game.control.robot.rovers.actions.TURN_COMMIT_COMMAND;
 import game.control.robot.rovers.actions.TURN_PHASE;
 import game.control.robot.rovers.board.*;
-import java.util.stream.Collectors;
 import game.control.robot.rovers.command.PromptCommand;
 import game.control.robot.rovers.config.BoardConfig;
 import game.control.robot.rovers.config.GameConfig;
-
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ControlRobotTurnGameBoardAndCommands {
 
@@ -90,9 +89,6 @@ public class ControlRobotTurnGameBoardAndCommands {
 	public String runMessageCommand(MESSAGE_COMMAND command, MESSAGE_COMMAND.MODE mode, PromptCommand promptCommand,
 			int currentRobot, Map<Integer, ControlRobotsTurnGameRobotAI> robotAIs) {
 
-//		Map.Entry<Planet, Integer> e1 = Map.entry(this.getPlanet(), currentRobot);
-//		Map.Entry<PromptCommand, MESSAGE_COMMAND.MODE> e2 = Map.entry(promptCommand, mode);
-		//return command.action.apply(this.getPlanet(), currentRobot, promptCommand, mode, robotAIs);
 		return command.action.apply(planet, currentRobot, promptCommand, mode, robotAIs);
 
 	}
@@ -110,10 +106,8 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	public String runStatusCommand(STATUS_COMMAND command, PromptCommand promptCommand) {
 
-		Map.Entry<Planet, PromptCommand> e1 = Map.entry(this.getPlanet(), promptCommand);
-		Map.Entry<END_OF_TURN_COMMAND[][], Map<Integer, PromptCommand[]>> e2 = Map
-				.entry(this.END_OF_TURN_ROBOT_COMMANDS_CONFIG, this.endOfTurnRobotCommands);
-		return command.action.apply(e1, e2);
+		return command.action.apply(this.getPlanet(), promptCommand, this.END_OF_TURN_ROBOT_COMMANDS_CONFIG,
+				this.endOfTurnRobotCommands);
 
 	}
 
@@ -126,9 +120,7 @@ public class ControlRobotTurnGameBoardAndCommands {
 
 	public String runTurnCommitCommand(TURN_COMMIT_COMMAND command, PromptCommand promptCommand) {
 
-		Map.Entry<TURN_PHASE[][], Map<Integer, PromptCommand[]>> e2 = Map.entry(this.END_OF_TURN_PHASE_CONFIG,
-				this.endOfTurnRobotCommands);
-		var ret = command.action.apply(this.getPlanet(), e2);
+		command.action.apply(this.getPlanet(), this.END_OF_TURN_PHASE_CONFIG, this.endOfTurnRobotCommands);
 		this.resetTurnCommitCommands();
 		return this.printEndScreen();
 
@@ -157,19 +149,20 @@ public class ControlRobotTurnGameBoardAndCommands {
 					.collect(Collectors.summingInt(r -> r.getCargo().getBatteriesInCargo().size()))));
 			buffer.append(String.format("rovers on planet total remaining energy: %d\n",
 					planet.getAllRobots().stream().collect(Collectors.summingInt(r -> r.getTotalEnergy()))));
-			
+
 			return buffer.toString();
 
-		} else {
-			
-			StringBuffer buffer = new StringBuffer("THE END:\n");
+		} else if (motherShip != null && !motherShip.isLaunched()) {
 
-			buffer.append(String.format("no Mother-Ship found\n"));
-			buffer.append(String.format("rovers on planet total remaining energy: %d\n",
-					planet.getAllRobots().stream().collect(Collectors.summingInt(r -> r.getTotalEnergy()))));
-			
-			buffer.toString();
-			
+			int totalRobotEnergy = planet.getAllRobots().stream()
+					.collect(Collectors.summingInt(r -> r.getTotalEnergy()));
+
+			if (totalRobotEnergy <= 0) {
+				StringBuffer buffer = new StringBuffer("THE END:\n");
+				buffer.append(String.format("rovers on planet total remaining energy: %d\n", totalRobotEnergy));
+				return buffer.toString();
+			}
+
 		}
 
 		return null;
