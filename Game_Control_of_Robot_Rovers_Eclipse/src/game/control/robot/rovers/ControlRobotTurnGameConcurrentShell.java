@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 import game.control.robot.rovers.actions.END_OF_TURN_COMMAND;
 import game.control.robot.rovers.actions.MESSAGE_COMMAND;
 import game.control.robot.rovers.actions.TURN_COMMIT_COMMAND;
-import game.control.robot.rovers.board.MotherShip;
+import game.control.robot.rovers.board.*;
 import game.control.robot.rovers.command.PromptCommand;
 
 public class ControlRobotTurnGameConcurrentShell implements Callable<Boolean> {
@@ -53,8 +53,6 @@ public class ControlRobotTurnGameConcurrentShell implements Callable<Boolean> {
 
 		try {
 
-//			return this.game.runMessageCommand(MESSAGE_COMMAND.valueOf(promptCommand.underscoreCasedKeyWords),
-//					MESSAGE_COMMAND.MODE.CONCURRENT, promptCommand, currentRobot);
 			return this.game.runMessageCommand(MESSAGE_COMMAND.valueOf(promptCommand.underscoreCasedKeyWords),
 					MESSAGE_COMMAND.MODE.CONCURRENT, promptCommand, currentRobot, robotAIs);
 

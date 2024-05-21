@@ -21,12 +21,12 @@ public enum CREATE_COMMAND {
 		GPSCoordinates gpsCoords = CREATE_COMMAND.getCoords(c, p);
 
 		MotherShip motherShip = p.extractMotherShip();
-		
-		if(String.valueOf(c.argumentsArray[2]).equals("new")) {
+
+		if (String.valueOf(c.argumentsArray[2]).equals("new")) {
 			motherShip = new MotherShip(
 					CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.MOTHER_SHIP_MAX_LOAD));
 		}
-		
+
 		if (motherShip == null) {
 			motherShip = new MotherShip(
 					CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.MOTHER_SHIP_MAX_LOAD));
@@ -62,8 +62,10 @@ public enum CREATE_COMMAND {
 						CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.BATTERY_CAPACITY),
 						CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.BATTERY_WEIGHT));
 			}
-			p.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getRobots().add(new Robot(
-					CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.ROVER_CARGO_MAX_LOAD), batteries));
+			p.getSurface()[gpsCoords.getX()][gpsCoords.getY()].getRobots()
+					.add(new Robot(
+							CREATE_COMMAND.getConfig().getIntValue(BoardConfig.INT_CONFIG_ENTRY.ROVER_CARGO_MAX_LOAD),
+							batteries));
 		}
 
 		return true;
@@ -107,7 +109,7 @@ public enum CREATE_COMMAND {
 		p.getSurface()[gpsCoords.getX()][gpsCoords.getY()].setChasm(true);
 
 		return true;
-	}), ADD_BLIZZARD("addBlizzard", "add blizzard : %d %d", 3, (p, c) -> {
+	}), ADD_BLIZZARD("addBlizzard", "add blizzard : %d %d %d", 3, (p, c) -> {
 
 		GPSCoordinates gpsCoords = CREATE_COMMAND.getCoords(c, p);
 
@@ -117,16 +119,15 @@ public enum CREATE_COMMAND {
 
 		return true;
 	}), CLEAR_BLIZZARDS("clearBlizzards", "clear blizzards : %d %d", 2, (p, c) -> {
-		
+
 		GPSCoordinates gpsCoords = CREATE_COMMAND.getCoords(c, p);
-		
+
 		Area area = p.getSurface()[gpsCoords.getX()][gpsCoords.getY()];
-		
+
 		area.getBlizzards().clear();
-		
+
 		return true;
 	}), CLEAR_AREA("clearArea", "clear area : %d %d", 2, (p, c) -> {
-	
 
 		GPSCoordinates gpsCoords = CREATE_COMMAND.getCoords(c, p);
 

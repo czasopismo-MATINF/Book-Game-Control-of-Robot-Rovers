@@ -1,0 +1,53 @@
+reset planet : 10 10
+add mother ship : 5 0 new
+add robots : 5 0 2
+add robots : 0 2 2
+add robots : 1 -4 2
+add robots : 2 4 2
+add robots : 3 -3 2
+add robots : 4 5 2
+add robots : 6 -2 2
+add robots : 7 3 2
+add robots : 8 5 2
+add robots : 9 -4 2
+add chasm : 3 0
+add chasm : 4 3
+add chasm : 4 -4
+add chasm : 7 2
+add chasm : 8 -3
+add chasm : 1 2
+add chasm : 1 -3
+add chasm : 2 5
+add chasm : 8 4
+add rocks : 0 4 10
+add rocks : 0 5 10
+add rocks : 1 4 10
+add rocks : 2 -2 10
+add rocks : 2 -3 10
+add rocks : 1 -3 20
+add rocks : 7 -3 10
+add rocks : 7 -4 10
+add rocks : 8 -3 20
+add rocks : 7 3 10
+add rocks : 7 4 10
+add rocks : 8 4 20
+add rocks : 9 4 10
+add rocks : 9 5 10
+add charging station : 0 2
+add charging station : 1 -3
+add charging station : 1 -3
+add charging station : 2 2
+add charging station : 5 4
+add charging station : 7 -4
+add charging station : 8 3
+add charging station : 9 4
+add blizzard : 1 3 2
+add blizzard : 1 2 2
+add blizzard : 2 -2 2
+add blizzard : 2 -3 2
+add blizzard : 6 2 2
+add blizzard : 6 3 2
+add blizzard : 7 3 2
+add blizzard : 7 -2 2
+add blizzard : 8 -2 2
+add blizzard : 9 -2 2

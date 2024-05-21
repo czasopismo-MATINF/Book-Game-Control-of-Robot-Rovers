@@ -13,6 +13,9 @@ import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.io.File;
+import java.util.Scanner;
 import java.io.IOException;
 
 public class ControlRobotTurnGameShell {
@@ -28,7 +31,7 @@ public class ControlRobotTurnGameShell {
 		}
 	}
 
-	protected void saveBoard(PromptCommand command) throws IllegalArgumentException {
+	protected String saveBoard(PromptCommand command) throws IllegalArgumentException {
 
 		validateNumberOfArguments(command, 1);
 
@@ -47,9 +50,11 @@ public class ControlRobotTurnGameShell {
 			e.printStackTrace();
 		}
 
+		return null;
+
 	}
 
-	protected void loadBoard(PromptCommand command) throws IllegalArgumentException {
+	protected String loadBoard(PromptCommand command) throws IllegalArgumentException {
 
 		validateNumberOfArguments(command, 1);
 
@@ -70,6 +75,58 @@ public class ControlRobotTurnGameShell {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		return null;
+
+	}
+
+	protected String s(PromptCommand command) throws IllegalArgumentException {
+
+		return this.saveBoard(new PromptCommand("save board " + PromptCommand.SPLIT_KEYWORDS_ARGUMENTS + " board.in"));
+
+	}
+
+	protected String l(PromptCommand command) throws IllegalArgumentException {
+
+		return this.loadBoard(new PromptCommand("load board " + PromptCommand.SPLIT_KEYWORDS_ARGUMENTS + " board.in"));
+	}
+
+	protected String runScript(PromptCommand command) throws IllegalArgumentException {
+
+		validateNumberOfArguments(command, 1);
+		
+		try(Scanner scanner = new Scanner(new File(command.argumentsArray[0]))) {
+			
+			while(scanner.hasNextLine()) {
+				
+				this.runCommand(scanner.nextLine());
+				
+			}
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		return null;
+
+	}
+
+	protected String rs(PromptCommand command) {
+		
+		return this.runScript(new PromptCommand("run script " + PromptCommand.SPLIT_KEYWORDS_ARGUMENTS + " create_example_planet.script"));
+		
+	}
+	
+	protected String robot(PromptCommand command) throws IllegalArgumentException {
+
+		validateNumberOfArguments(command, 1);
+
+		this.currentRobot = Integer.valueOf(command.argumentsArray[0]);
+
+		return null;
+
 	}
 
 	protected String runCommand(String commandLine, int currentRobot) {
@@ -119,7 +176,7 @@ public class ControlRobotTurnGameShell {
 					promptCommand);
 
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			// e.printStackTrace();
 		}
 
 		return null;
@@ -132,36 +189,21 @@ public class ControlRobotTurnGameShell {
 
 		try {
 
-			switch (command.camelCasedKeyWords) {
+			return (String) this.getClass().getDeclaredMethod(command.camelCasedKeyWords, PromptCommand.class)
+					.invoke(this, command);
 
-			case "robot": {
-				validateNumberOfArguments(command, 1);
-				this.currentRobot = Integer.valueOf(command.argumentsArray[0]);
-				return null;
-			}
-
-			case "saveBoard": {
-				this.saveBoard(command);
-				return null;
-			}
-
-			case "loadBoard": {
-				this.loadBoard(command);
-				return null;
-			}
-
-			case "s": {
-				this.saveBoard(new PromptCommand("save board : board.in"));
-				return null;
-			}
-
-			case "l": {
-				this.loadBoard(new PromptCommand("load board : board.in"));
-				return null;
-			}
-
-			}
-
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			// e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

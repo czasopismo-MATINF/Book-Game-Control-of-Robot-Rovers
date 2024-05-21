@@ -5,8 +5,8 @@ import java.util.stream.Collectors;
 
 public class PromptCommand {
 
-	final static String SPLIT_KEYWORDS_ARGUMENTS = ":";
-	final static String SPLIT_REGEX = "\\s+";
+	public final static String SPLIT_KEYWORDS_ARGUMENTS = ":";
+	public final static String SPLIT_REGEX = "\\s+";
 
 	public String command;
 	public String keyWords;

@@ -212,6 +212,7 @@ void printFinishScreen() {
 String filePath =  "planet ... file ... path";
 
 /**********/
+//section for Eclipse based game
 /*
 void setup() {
 
@@ -235,6 +236,7 @@ void draw() {
 }
 */
 /**********/
+//section for concurrent automatic AI game
 
 ControlRobotTurnGameBoardAndCommands game;
 ControlRobotTurnGameConcurrentShell gameShell;
@@ -285,3 +287,5 @@ void draw() {
    }
   
 }
+
+/**********/
