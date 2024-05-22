@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.Random;
 
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
@@ -27,80 +26,6 @@ interface P4<A, B, C, D, E> {
 @FunctionalInterface
 interface F5<A, B, C, D, E, F> {
 	public F apply(A a, B b, C c, D d, E e);
-}
-
-class WeatherEffects {
-
-	public static boolean preventedBy(List<Blizzard> blizzards) {
-
-		Random random = new Random(System.currentTimeMillis());
-
-		for (Blizzard blizzard : blizzards) {
-			int rnd = random.nextInt(0, 101);
-			if (rnd < blizzard.getVolume()) {
-				return true;
-			}
-		}
-
-		return false;
-
-	}
-
-	public static boolean success(List<Blizzard> blizzards) {
-
-		Random random = new Random(System.currentTimeMillis());
-
-		for (Blizzard blizzard : blizzards) {
-			int rnd = random.nextInt(0, 101);
-			if (rnd < blizzard.getVolume()) {
-				return false;
-			}
-		}
-
-		return true;
-
-	}
-
-}
-
-class RandomEffects {
-
-	public static int getRandom(int min, int max) {
-
-		Random random = new Random(System.currentTimeMillis());
-
-		return random.nextInt(min, max + 1);
-
-	}
-
-	public static String mergeMarkers(String oldMarker, String newMarker, String groundMarker, int chars,
-			List<Blizzard> blizzards) {
-
-		StringBuffer sBuffer = new StringBuffer();
-
-		int i = 0;
-		for (; i < chars; ++i) {
-			if (i < newMarker.length()) {
-				sBuffer.append(newMarker.charAt(i));
-			} else {
-				if (i < oldMarker.length()) {
-					sBuffer.append('.');
-				} else {
-					if (i < groundMarker.length()) {
-						sBuffer.append(groundMarker.charAt(i));
-					}
-				}
-			}
-		}
-
-		for (; i < groundMarker.length(); ++i) {
-			sBuffer.append(groundMarker.charAt(i));
-		}
-
-		return sBuffer.toString();
-
-	}
-
 }
 
 class RobotPromptCommandMap extends HashMap<Robot, PromptCommand> {
@@ -159,66 +84,6 @@ class RobotPromptCommandMap extends HashMap<Robot, PromptCommand> {
 
 }
 
-enum ENERGY_COST_CALCULATOR {
-
-	RANDOM((min, max, blizzards, weight, multiplier) -> {
-		Random random = new Random(System.currentTimeMillis());
-		return random.nextInt(min, max + 1);
-	}),
-
-	CONST((min, max, blizzards, weight, multiplier) -> {
-		return min;
-	}), MIN((min, max, blizzards, weight, multiplier) -> {
-		return min;
-	}), MAX((min, max, blizzards, weight, multiplier) -> {
-		return max;
-	}), AVG((min, max, blizzards, weight, multiplier) -> {
-		return (min + max) / 2;
-	}), REACH_DESTINATION_ON_AREA((min, max, blizzards, weight, multiplier) -> {
-		Random random = new Random(System.currentTimeMillis());
-		int totalVolume = blizzards.stream().collect(Collectors.summingInt(b -> b.getVolume()));
-		return random.nextInt(min, max + (int) (((double) max) * ((double) totalVolume) / 100)) + weight * multiplier;
-	}), REACH_AREA((min, max, blizzards, weight, multiplier) -> {
-		Random random = new Random(System.currentTimeMillis());
-		int totalVolume = blizzards.stream().collect(Collectors.summingInt(b -> b.getVolume()));
-		return random.nextInt(min, max + (int) (((double) max) * ((double) totalVolume) / 100)) + weight * multiplier;
-	}), CONST_WEIGHT((min, max, blizzards, weight, multiplier) -> {
-		return min + weight * multiplier;
-	});
-
-	protected BoardConfig config = new GameConfig();
-
-	private final F5<Integer, Integer, List<Blizzard>, Integer, Integer, Integer> calculate;
-
-	private ENERGY_COST_CALCULATOR(F5<Integer, Integer, List<Blizzard>, Integer, Integer, Integer> calculate) {
-		this.calculate = calculate;
-	}
-
-	public int calculate(BoardConfig.INT_CONFIG_ENTRY entry1, BoardConfig.INT_CONFIG_ENTRY entry2,
-			List<Blizzard> blizzards, Integer weight, Integer multiplier) {
-		return this.calculate.apply(this.config.getIntValue(entry1), this.config.getIntValue(entry2), blizzards, weight,
-				multiplier);
-	}
-
-	public int calculate(BoardConfig.INT_CONFIG_ENTRY entry1, List<Blizzard> blizzards, Integer weight,
-			Integer multiplier) {
-		return this.calculate.apply(this.config.getIntValue(entry1), this.config.getIntValue(entry1), blizzards, weight,
-				multiplier);
-	}
-
-	public int calculate(BoardConfig.INT_CONFIG_ENTRY entry1, BoardConfig.INT_CONFIG_ENTRY entry2,
-			List<Blizzard> blizzards, Integer weight, BoardConfig.INT_CONFIG_ENTRY entry3) {
-		return this.calculate.apply(this.config.getIntValue(entry1), this.config.getIntValue(entry2), blizzards, weight,
-				this.config.getIntValue(entry3));
-	}
-
-	public int calculate(BoardConfig.INT_CONFIG_ENTRY entry1, List<Blizzard> blizzards, Integer weight,
-			BoardConfig.INT_CONFIG_ENTRY entry2) {
-		return this.calculate.apply(this.config.getIntValue(entry1), this.config.getIntValue(entry1), blizzards, weight,
-				this.config.getIntValue(entry2));
-	}
-
-}
 
 public enum TURN_PHASE {
 
@@ -331,7 +196,7 @@ public enum TURN_PHASE {
 							}
 							robot.drainEnergy(energy);
 
-							if (WeatherEffects.preventedBy(a.getBlizzards())) {
+							if (WEATHER_EFFECTS.preventedBy(a.getBlizzards())) {
 								return;
 							}
 
@@ -377,7 +242,7 @@ public enum TURN_PHASE {
 							}
 							robot.drainEnergy(energy);
 
-							if (WeatherEffects.preventedBy(a.getBlizzards())) {
+							if (WEATHER_EFFECTS.preventedBy(a.getBlizzards())) {
 								return;
 							}
 
@@ -434,7 +299,7 @@ public enum TURN_PHASE {
 
 					r.drainEnergy(ENERGY_PER_KG);
 
-					if (WeatherEffects.preventedBy(area.getBlizzards())) {
+					if (WEATHER_EFFECTS.preventedBy(area.getBlizzards())) {
 						return;
 					}
 
@@ -474,11 +339,11 @@ public enum TURN_PHASE {
 				}
 
 				int groundMarkerPosition;
-				if (WeatherEffects.success(area.getBlizzards())) {
+				if (WEATHER_EFFECTS.success(area.getBlizzards())) {
 					area.getMarkers().add(new String(""));
 					groundMarkerPosition = area.getMarkers().size() - 1;
 				} else {
-					groundMarkerPosition = RandomEffects.getRandom(0, area.getMarkers().size() - 1);
+					groundMarkerPosition = RANDOM_EFFECTS.getRandom(0, area.getMarkers().size() - 1);
 				}
 
 				String oldMarker = new String("");
@@ -492,7 +357,7 @@ public enum TURN_PHASE {
 					numberOfChars = drainedEnergy / ENERGY_PER_CHAR;
 				}
 
-				String marker = RandomEffects.mergeMarkers(oldMarker, newMarker, groundMarker, numberOfChars,
+				String marker = RANDOM_EFFECTS.mergeMarkers(oldMarker, newMarker, groundMarker, numberOfChars,
 						area.getBlizzards());
 				area.getMarkers().set(groundMarkerPosition, marker);
 
@@ -529,10 +394,10 @@ public enum TURN_PHASE {
 				}
 
 				int groundMarkerPosition;
-				if (WeatherEffects.success(area.getBlizzards())) {
+				if (WEATHER_EFFECTS.success(area.getBlizzards())) {
 					groundMarkerPosition = Integer.valueOf(promptCommand.argumentsArray[0]);
 				} else {
-					groundMarkerPosition = RandomEffects.getRandom(0, area.getMarkers().size() - 1);
+					groundMarkerPosition = RANDOM_EFFECTS.getRandom(0, area.getMarkers().size() - 1);
 					if (groundMarkerPosition == area.getMarkers().size()) {
 						area.getMarkers().add(new String(""));
 					}
@@ -549,7 +414,7 @@ public enum TURN_PHASE {
 					numberOfChars = drainedEnergy / ENERGY_PER_CHAR;
 				}
 
-				String marker = RandomEffects.mergeMarkers(oldMarker, newMarker, groundMarker, numberOfChars,
+				String marker = RANDOM_EFFECTS.mergeMarkers(oldMarker, newMarker, groundMarker, numberOfChars,
 						area.getBlizzards());
 				area.getMarkers().set(groundMarkerPosition, marker);
 
@@ -597,7 +462,7 @@ public enum TURN_PHASE {
 					return;
 				}
 
-				if (WeatherEffects.preventedBy(a.getBlizzards())) {
+				if (WEATHER_EFFECTS.preventedBy(a.getBlizzards())) {
 					return;
 				}
 
@@ -658,7 +523,7 @@ public enum TURN_PHASE {
 					return;
 				}
 
-				if (WeatherEffects.preventedBy(a.getBlizzards())) {
+				if (WEATHER_EFFECTS.preventedBy(a.getBlizzards())) {
 					return;
 				}
 
@@ -742,7 +607,7 @@ public enum TURN_PHASE {
 
 						MotherShip motherShip = area.getMotherShip();
 
-						if (WeatherEffects.preventedBy(a.getBlizzards())) {
+						if (WEATHER_EFFECTS.preventedBy(a.getBlizzards())) {
 							area.addBatteriesAndRocks(batteries, rocks);
 						} else {
 							motherShip.getCargo().addRocks(rocks);
@@ -809,7 +674,7 @@ public enum TURN_PHASE {
 
 						MotherShip motherShip = area.getMotherShip();
 
-						if (!WeatherEffects.preventedBy(a.getBlizzards())) {
+						if (!WEATHER_EFFECTS.preventedBy(a.getBlizzards())) {
 							area.getRobots().remove(robot);
 							motherShip.getRobots().add(robot);
 						}
@@ -872,7 +737,7 @@ public enum TURN_PHASE {
 
 						MotherShip motherShip = area.getMotherShip();
 
-						if (!WeatherEffects.preventedBy(a.getBlizzards())) {
+						if (!WEATHER_EFFECTS.preventedBy(a.getBlizzards())) {
 							motherShip.launch();
 						}
 

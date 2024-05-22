@@ -6,9 +6,11 @@ import game.control.robot.rovers.actions.END_OF_TURN_COMMAND;
 import game.control.robot.rovers.actions.MESSAGE_COMMAND;
 import game.control.robot.rovers.config.*;
 
-import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 
@@ -111,31 +113,21 @@ public class ControlRobotsTurnGameRobotAI implements Callable<Boolean> {
 	}
 	
 	/**********/
+	
+	protected int getRobotId() {
+		
+		try {
+			Pattern p = Pattern.compile("^ROBOT: id: (\\d+)", Pattern.MULTILINE);
+			Matcher m  = p.matcher(this.check_self());
+			m.find();
+			return Integer.valueOf(m.group(1));
+		} catch(IllegalStateException e) {
+			return -1;
+		}
+		
+	}
 
 	public Boolean call() {
-
-		/*
-		 * SINGLE TURN LOGIC FOR YOUR ROBOTS
-		 */
-
-		Random random = new Random(System.currentTimeMillis());
-
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		String msg = this.messageQueue.poll();
-		if (msg != null) {
-			System.out.println(msg);
-		}
-
-		this.send_message('C', "hello", 30);
-		this.send_gps_message(5, 0, "hello_gps", 10);
-
-		this.move("ESWN".charAt(random.nextInt(0, 4)));
 
 		return true;
 
