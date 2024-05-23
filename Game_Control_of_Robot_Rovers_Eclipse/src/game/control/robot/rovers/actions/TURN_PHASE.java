@@ -16,18 +16,6 @@ import game.control.robot.rovers.command.PromptCommand;
 import game.control.robot.rovers.config.BoardConfig;
 import game.control.robot.rovers.config.GameConfig;
 
-import java.lang.FunctionalInterface;
-
-@FunctionalInterface
-interface P4<A, B, C, D, E> {
-	public void apply(A a, B b, C c, D d, E e);
-}
-
-@FunctionalInterface
-interface F5<A, B, C, D, E, F> {
-	public F apply(A a, B b, C c, D d, E e);
-}
-
 class RobotPromptCommandMap extends HashMap<Robot, PromptCommand> {
 
 	/**
@@ -69,7 +57,8 @@ class RobotPromptCommandMap extends HashMap<Robot, PromptCommand> {
 
 	}
 
-	public void forEach(Planet planet, P4<Robot, PromptCommand, Planet, Area, GPSCoordinates> procedure) {
+	public void forEach(Planet planet,
+			HELPER_CLASSES.P4<Robot, PromptCommand, Planet, Area, GPSCoordinates> procedure) {
 
 		this.entrySet().forEach(entry -> {
 
@@ -83,7 +72,6 @@ class RobotPromptCommandMap extends HashMap<Robot, PromptCommand> {
 	}
 
 }
-
 
 public enum TURN_PHASE {
 
@@ -331,8 +319,8 @@ public enum TURN_PHASE {
 
 				int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
 						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MIN_ENERGY,
-						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(), robot.getTotalWeight(),
-						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
+						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(),
+						robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
 				int drained = robot.drainEnergy(energy);
 				if (drained < energy) {
 					return;
@@ -343,7 +331,7 @@ public enum TURN_PHASE {
 					area.getMarkers().add(new String(""));
 					groundMarkerPosition = area.getMarkers().size() - 1;
 				} else {
-					groundMarkerPosition = RANDOM_EFFECTS.getRandom(0, area.getMarkers().size() - 1);
+					groundMarkerPosition = HELPER_CLASSES.RANDOM_EFFECTS.getRandom(0, area.getMarkers().size() - 1);
 				}
 
 				String oldMarker = new String("");
@@ -357,8 +345,8 @@ public enum TURN_PHASE {
 					numberOfChars = drainedEnergy / ENERGY_PER_CHAR;
 				}
 
-				String marker = RANDOM_EFFECTS.mergeMarkers(oldMarker, newMarker, groundMarker, numberOfChars,
-						area.getBlizzards());
+				String marker = HELPER_CLASSES.RANDOM_EFFECTS.mergeMarkers(oldMarker, newMarker, groundMarker,
+						numberOfChars, area.getBlizzards());
 				area.getMarkers().set(groundMarkerPosition, marker);
 
 			});
@@ -378,16 +366,15 @@ public enum TURN_PHASE {
 			RobotPromptCommandMap writers = new RobotPromptCommandMap(areaRobots, commands, 2,
 					END_OF_TURN_COMMAND.MARKER_OVERWRITE).filter(promptCommand -> {
 						return String.valueOf(promptCommand.argumentsArray[1]).length() > 0
-								&& Integer.valueOf(promptCommand.argumentsArray[0]) >= 0
-								&& Integer.valueOf(promptCommand.argumentsArray[0]) < area.getMarkers().size();
+								&& Integer.valueOf(promptCommand.argumentsArray[0]) >= 0;
 					});
 
 			writers.forEach(planet, (robot, promptCommand, p, a, coords) -> {
 
 				int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
 						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MIN_ENERGY,
-						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(), robot.getTotalWeight(),
-						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
+						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(),
+						robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
 				int drained = robot.drainEnergy(energy);
 				if (drained < energy) {
 					return;
@@ -395,9 +382,14 @@ public enum TURN_PHASE {
 
 				int groundMarkerPosition;
 				if (WEATHER_EFFECTS.success(area.getBlizzards())) {
-					groundMarkerPosition = Integer.valueOf(promptCommand.argumentsArray[0]);
+					if (Integer.valueOf(promptCommand.argumentsArray[0]) >= area.getMarkers().size()) {
+						area.getMarkers().add(new String(""));
+						groundMarkerPosition = area.getMarkers().size();
+					} else {
+						groundMarkerPosition = Integer.valueOf(promptCommand.argumentsArray[0]);
+					}
 				} else {
-					groundMarkerPosition = RANDOM_EFFECTS.getRandom(0, area.getMarkers().size() - 1);
+					groundMarkerPosition = HELPER_CLASSES.RANDOM_EFFECTS.getRandom(0, area.getMarkers().size());
 					if (groundMarkerPosition == area.getMarkers().size()) {
 						area.getMarkers().add(new String(""));
 					}
@@ -414,8 +406,8 @@ public enum TURN_PHASE {
 					numberOfChars = drainedEnergy / ENERGY_PER_CHAR;
 				}
 
-				String marker = RANDOM_EFFECTS.mergeMarkers(oldMarker, newMarker, groundMarker, numberOfChars,
-						area.getBlizzards());
+				String marker = HELPER_CLASSES.RANDOM_EFFECTS.mergeMarkers(oldMarker, newMarker, groundMarker,
+						numberOfChars, area.getBlizzards());
 				area.getMarkers().set(groundMarkerPosition, marker);
 
 			});
@@ -433,7 +425,6 @@ public enum TURN_PHASE {
 					END_OF_TURN_COMMAND.CHARGE_ROVER).filter(promptCommand -> {
 						return String.valueOf(promptCommand.argumentsArray[1]).length() > 0
 								&& String.valueOf(promptCommand.argumentsArray[1]).toUpperCase().equals("ENERGY")
-								&& Integer.valueOf(promptCommand.argumentsArray[0]) >= 0
 								&& Integer.valueOf(promptCommand.argumentsArray[2]) >= 0;
 					});
 
@@ -448,8 +439,8 @@ public enum TURN_PHASE {
 
 				int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
 						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MIN_ENERGY,
-						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(), robot.getTotalWeight(),
-						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
+						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(),
+						robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
 				int drained = robot.drainEnergy(energy);
 				if (drained < energy) {
 					return;
@@ -472,10 +463,10 @@ public enum TURN_PHASE {
 				robot.drainEnergy(energyCost);
 
 				int provEnergy = Integer.valueOf(promptCommand.argumentsArray[2]);
-				int draiEnergy = robot.drainEnergy(provEnergy);
-				int submEnergy = (int) (TURN_PHASE.getConfig()
-						.getIntValue(BoardConfig.INT_CONFIG_ENTRY.CHARGE_ROVER_TRANSFER_ENERGY_PERCENT) * draiEnergy
-						* 1.0 / 100);
+				int drainEnergy = robot.drainEnergy(provEnergy);
+				int submEnergy = (int) ((TURN_PHASE.getConfig().getIntValue(
+						BoardConfig.INT_CONFIG_ENTRY.CHARGE_ROVER_TRANSFER_ENERGY_PERCENT) * drainEnergy * 1.0)
+						/ 100.0);
 
 				int tranEnergy = targetRobot.chargeEnergy(submEnergy);
 				robot.chargeEnergy(tranEnergy);
@@ -512,8 +503,8 @@ public enum TURN_PHASE {
 
 				int energy = ENERGY_COST_CALCULATOR.REACH_DESTINATION_ON_AREA.calculate(
 						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MIN_ENERGY,
-						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(), robot.getTotalWeight(),
-						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
+						BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(),
+						robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
 				int drained = robot.drainEnergy(energy);
 				if (drained < energy) {
 					return;
@@ -522,6 +513,11 @@ public enum TURN_PHASE {
 				if (accessPoints.size() <= 0) {
 					return;
 				}
+
+				if (energyCost > robot.getTotalEnergy()) {
+					return;
+				}
+				robot.drainEnergy(energyCost);
 
 				if (WEATHER_EFFECTS.preventedBy(a.getBlizzards())) {
 					return;
@@ -542,9 +538,9 @@ public enum TURN_PHASE {
 
 					if ("FULL".equals(promptCommand.argumentsArray[0].toUpperCase())) {
 
-						int tranEnergy = (int) (TURN_PHASE.getConfig()
+						int tranEnergy = (int) ((TURN_PHASE.getConfig()
 								.getIntValue(BoardConfig.INT_CONFIG_ENTRY.DISTRIBUTE_ENERGY_TRANSFER_PERCENT)
-								* robot.getTotalEnergy() * 1.0 / 100);
+								* robot.getTotalEnergy() * 1.0) / 100.0);
 						robot.drainAllEnergy();
 						List<Battery> batteries = robot.getNotNullBatteries();
 						for (int i = 0; i < batteries.size(); ++i) {
@@ -562,9 +558,9 @@ public enum TURN_PHASE {
 
 					} else if ("EVEN".equals(promptCommand.argumentsArray[0].toUpperCase())) {
 
-						int tranEnergy = (int) (TURN_PHASE.getConfig()
+						int tranEnergy = (int) ((TURN_PHASE.getConfig()
 								.getIntValue(BoardConfig.INT_CONFIG_ENTRY.DISTRIBUTE_ENERGY_TRANSFER_PERCENT)
-								* robot.getTotalEnergy() * 1.0 / 100);
+								* robot.getTotalEnergy() * 1.0) / 100.0);
 						robot.drainAllEnergy();
 						for (int i = 0; i < tranEnergy; ++i) {
 							robot.chargeEnergy(1);
@@ -632,10 +628,14 @@ public enum TURN_PHASE {
 
 					int energy = ENERGY_COST_CALCULATOR.REACH_AREA.calculate(
 							BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MIN_ENERGY,
-							BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(), robot.getTotalWeight(),
-							BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
+							BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_AREA_MAX_ENERGY, a.getBlizzards(),
+							robot.getTotalWeight(), BoardConfig.INT_CONFIG_ENTRY.ROVER_MOVE_WEIGHT_MULTIPLIER);
 					int drained = robot.drainEnergy(energy);
 					if (drained < energy) {
+						return;
+					}
+
+					if (a.hasChasm()) {
 						return;
 					}
 

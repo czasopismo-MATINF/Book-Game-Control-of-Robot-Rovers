@@ -194,6 +194,8 @@ public enum MESSAGE_COMMAND {
 			}),
 	LOOK_AROUND("lookAround", "look around", 0, (planet, currentRobotId, promptCommand, mode, robotAIs) -> {
 
+		String naMsg = "N/A: energy\n";
+		
 		if (currentRobotId == null) {
 			return null;
 		}
@@ -212,7 +214,7 @@ public enum MESSAGE_COMMAND {
 
 		int energyCost = ENERGY_COST_CALCULATOR.CONST.calculate(BoardConfig.INT_CONFIG_ENTRY.SCAN_ENERGY, null, 0, 0);
 		if (energyCost > currentRobot.getTotalEnergy()) {
-			return "N/A: energy\n";
+			return naMsg;
 		}
 		currentRobot.drainEnergy(energyCost);
 
@@ -250,21 +252,16 @@ public enum MESSAGE_COMMAND {
 		PROMPT, CONCURRENT;
 	};
 
-	@FunctionalInterface
-	public interface F5<A, B, C, D, E, F> {
-		public F apply(A a, B b, C c, D d, E e);
-	}
-
 	public static final String MESSAGE_SEPARATOR = ":";
 
 	public final String camelCasedName;
 	public final String messageFormat;
 	public final int numberOfArguments;
 
-	public final F5<Planet, Integer, PromptCommand, MODE, Map<Integer, ControlRobotsTurnGameRobotAI>, String> action;
+	public final HELPER_CLASSES.F5<Planet, Integer, PromptCommand, MODE, Map<Integer, ControlRobotsTurnGameRobotAI>, String> action;
 
 	private MESSAGE_COMMAND(String camelCasedName, String messageFormat, int numberOfArguments,
-			F5<Planet, Integer, PromptCommand, MODE, Map<Integer, ControlRobotsTurnGameRobotAI>, String> action) {
+			HELPER_CLASSES.F5<Planet, Integer, PromptCommand, MODE, Map<Integer, ControlRobotsTurnGameRobotAI>, String> action) {
 		this.camelCasedName = camelCasedName;
 		this.messageFormat = messageFormat.replaceFirst(":", MESSAGE_COMMAND.MESSAGE_SEPARATOR);
 		this.numberOfArguments = numberOfArguments;

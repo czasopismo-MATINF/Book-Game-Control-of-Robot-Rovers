@@ -14,6 +14,60 @@ import game.control.robot.rovers.board.Robot;
 import game.control.robot.rovers.config.BoardConfig;
 import game.control.robot.rovers.config.GameConfig;
 
+public class HELPER_CLASSES {
+	
+	@FunctionalInterface
+	public static interface F5<A, B, C, D, E, F> {
+		public F apply(A a, B b, C c, D d, E e);
+	}
+	
+	@FunctionalInterface
+	public static interface P4<A, B, C, D, E> {
+		public void apply(A a, B b, C c, D d, E e);
+	}
+	
+	public class RANDOM_EFFECTS {
+		
+		static Random random = new Random(System.currentTimeMillis());
+
+		public static int getRandom(int min, int max) {
+
+			return random.nextInt(min, max + 1);
+
+		}
+
+		public static String mergeMarkers(String oldMarker, String newMarker, String groundMarker, int chars,
+				List<Blizzard> blizzards) {
+
+			StringBuffer sBuffer = new StringBuffer();
+
+			int i = 0;
+			for (; i < chars; ++i) {
+				if (i < newMarker.length()) {
+					sBuffer.append(newMarker.charAt(i));
+				} else {
+					if (i < oldMarker.length()) {
+						sBuffer.append('.');
+					} else {
+						if (i < groundMarker.length()) {
+							sBuffer.append(groundMarker.charAt(i));
+						}
+					}
+				}
+			}
+
+			for (; i < groundMarker.length(); ++i) {
+				sBuffer.append(groundMarker.charAt(i));
+			}
+
+			return sBuffer.toString();
+
+		}
+
+	}
+	
+}
+
 enum ENERGY_COST_CALCULATOR {
 
 	RANDOM((min, max, blizzards, weight, multiplier) -> {
@@ -41,9 +95,9 @@ enum ENERGY_COST_CALCULATOR {
 
 	protected BoardConfig config = new GameConfig();
 
-	private final F5<Integer, Integer, List<Blizzard>, Integer, Integer, Integer> calculate;
+	private final HELPER_CLASSES.F5<Integer, Integer, List<Blizzard>, Integer, Integer, Integer> calculate;
 
-	private ENERGY_COST_CALCULATOR(F5<Integer, Integer, List<Blizzard>, Integer, Integer, Integer> calculate) {
+	private ENERGY_COST_CALCULATOR(HELPER_CLASSES.F5<Integer, Integer, List<Blizzard>, Integer, Integer, Integer> calculate) {
 		this.calculate = calculate;
 	}
 
@@ -154,13 +208,19 @@ class TO_STRING {
 
 		StringBuffer buffer = new StringBuffer();
 
-		String rMsg = "ROBOT: id: %d\n";
-		String bMsg = "BATTERY: id: %d capacity: %d energy: %d weight: %d\n";
-		String nMsg = "BATTERY: empty slot\n";
-		String cMsg = "CARGO: rocks: %d batteries: %d\n";
+		String rMsg = "robot: id: %d\n";
+		String cMsg = "cargo:\n";
+		String crMsg = "rocks: %d\n";
+		String cbMsg = "batteries: %d\n";
+		String bMsg = "battery: id: %d capacity: %d energy: %d weight: %d\n";
+		String nMsg = "battery: empty slot\n";
 
 		buffer.append(String.format(rMsg, robot.getId()));
 
+		buffer.append(cMsg);
+		buffer.append(String.format(crMsg, robot.getCargo().getRocks()));
+		buffer.append(String.format(cbMsg, robot.getCargo().getBatteriesInCargo().size()));
+		
 		buffer.append(Arrays.asList(robot.getBatteries()).stream().map(b -> {
 			if (b != null) {
 				return buffer.append(String.format(bMsg, b.getId(), b.getCapacity(), b.getEnergy(), b.getWeight()));
@@ -168,8 +228,6 @@ class TO_STRING {
 				return buffer.append(String.format(nMsg));
 			}
 		}).collect(Collectors.joining()));
-
-		buffer.append(String.format(cMsg, robot.getCargo().getRocks(), robot.getCargo().getBatteriesInCargo().size()));
 
 		return buffer.toString();
 
@@ -238,46 +296,6 @@ class WEATHER_EFFECTS {
 			ret = WEATHER_EFFECTS.randomCharacter();
 		}
 		return ret;
-	}
-
-}
-
-class RANDOM_EFFECTS {
-
-	public static int getRandom(int min, int max) {
-
-		Random random = new Random(System.currentTimeMillis());
-
-		return random.nextInt(min, max + 1);
-
-	}
-
-	public static String mergeMarkers(String oldMarker, String newMarker, String groundMarker, int chars,
-			List<Blizzard> blizzards) {
-
-		StringBuffer sBuffer = new StringBuffer();
-
-		int i = 0;
-		for (; i < chars; ++i) {
-			if (i < newMarker.length()) {
-				sBuffer.append(newMarker.charAt(i));
-			} else {
-				if (i < oldMarker.length()) {
-					sBuffer.append('.');
-				} else {
-					if (i < groundMarker.length()) {
-						sBuffer.append(groundMarker.charAt(i));
-					}
-				}
-			}
-		}
-
-		for (; i < groundMarker.length(); ++i) {
-			sBuffer.append(groundMarker.charAt(i));
-		}
-
-		return sBuffer.toString();
-
 	}
 
 }
