@@ -1,6 +1,6 @@
 # Podsumowanie
 
-Repozytorium zawiera kod powiązany z numerem specjalnym s0/2024 Czasopisma MATINF.
+To repozytorium zawiera kod powiązany z numerem specjalnym s0/2024 Czasopisma MATINF.
 
 # Overview
 
